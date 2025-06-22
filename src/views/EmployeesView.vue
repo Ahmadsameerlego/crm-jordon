@@ -384,6 +384,9 @@ const { formData, errors, isSubmitting, validateForm, resetForm } = useForm(
     city: "",
     position: "",
     profilePicture: "",
+    department: "",
+    hireDate: "",
+    status: "active",
   },
   {
     name: { required: true, minLength: 2 },
@@ -391,6 +394,9 @@ const { formData, errors, isSubmitting, validateForm, resetForm } = useForm(
     phone: { required: true, minLength: 10 },
     city: { required: true },
     position: { required: true },
+    department: { required: true },
+    hireDate: { required: true },
+    status: { required: true },
   }
 );
 
@@ -414,12 +420,12 @@ const filteredEmployees = computed(() => {
   filtered.sort((a, b) => {
     const aValue = a[sortField.value];
     const bValue = b[sortField.value];
-
-    if (sortOrder.value === "asc") {
-      return aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
-    } else {
-      return aValue > bValue ? -1 : aValue < bValue ? 1 : 0;
+    if (typeof aValue === "string" && typeof bValue === "string") {
+      return sortOrder.value === "asc"
+        ? aValue.localeCompare(bValue)
+        : bValue.localeCompare(aValue);
     }
+    return 0;
   });
 
   return filtered;
@@ -487,6 +493,9 @@ const exportData = () => {
     Phone: employee.phone,
     City: employee.city,
     Position: employee.position,
+    Department: employee.department,
+    HireDate: employee.hireDate,
+    Status: employee.status,
   }));
 
   exportToCSV(data, "employees");
@@ -501,6 +510,9 @@ const editEmployee = (employee: Employee) => {
   formData.city = employee.city;
   formData.position = employee.position;
   formData.profilePicture = employee.profilePicture || "";
+  formData.department = employee.department;
+  formData.hireDate = employee.hireDate;
+  formData.status = employee.status;
   showEditModal.value = true;
 };
 
@@ -538,6 +550,6 @@ const closeModal = () => {
 };
 
 onMounted(async () => {
-  await employeesStore.fetchEmployees();
+  await employeesStore.getEmployees();
 });
 </script>

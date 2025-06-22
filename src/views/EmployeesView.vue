@@ -529,9 +529,11 @@ const handleSubmit = async () => {
 
   try {
     if (showEditModal.value && editingEmployee.value) {
-      await employeesStore.updateEmployee(editingEmployee.value.id, formData);
+      await employeesStore.updateEmployee(editingEmployee.value.id, formData as Partial<Employee>);
     } else {
-      await employeesStore.addEmployee(formData);
+      await employeesStore.addEmployee(
+        formData as Omit<Employee, "id" | "createdAt" | "updatedAt">
+      );
     }
 
     closeModal();

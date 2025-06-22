@@ -16,15 +16,16 @@ import "primeicons/primeicons.css";
 // Patch for build: provide dummy crypto.getRandomValues if missing (Node.js build workaround)
 if (typeof globalThis.crypto === "undefined") {
   globalThis.crypto = {
-    getRandomValues: (arr: any) => {
-      // Fill with zeros as a fallback; adjust as needed for your use case
-      if (ArrayBuffer.isView(arr)) {
-        arr.fill(0);
-        return arr;
+    getRandomValues: function <T extends ArrayBufferView | null>(array: T): T {
+      if (array && array instanceof Uint8Array) {
+        for (let i = 0; i < array.length; i++) array[i] = 0;
+        return array;
       }
-      throw new Error("Expected an array-like object");
+      throw new Error("Expected a Uint8Array");
     },
-  };
+    subtle: undefined,
+    randomUUID: () => "00000000-0000-4000-8000-000000000000",
+  } as unknown as Crypto;
 }
 
 const app = createApp(App);

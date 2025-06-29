@@ -119,7 +119,7 @@ router.beforeEach(async (to, from, next) => {
   }
 
   // Handle routes that require guest (not authenticated)
-  if (to.meta.requiresGuest && authStore.isAuthenticated) {
+  if (to.meta.requiresGuest && authStore.isAuthenticated && to.path !== "/employee/login") {
     next("/admin");
     return;
   }

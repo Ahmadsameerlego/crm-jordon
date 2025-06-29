@@ -160,6 +160,16 @@
                   <i :class="isDark ? 'pi pi-sun' : 'pi pi-moon'" class="text-lg"></i>
                 </button>
 
+                <!-- Employee Login Link -->
+                <router-link
+                  to="/employee/login"
+                  class="p-2 rounded-lg bg-blue-100 dark:bg-blue-700 text-blue-600 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-600 transition-colors"
+                  title="تسجيل دخول الموظفين"
+                >
+                  <i class="pi pi-user-plus text-lg"></i>
+                 تسجيل الدخول للموظفين
+                </router-link>
+
                 <!-- Profile Icon -->
                 <router-link
                   to="/admin/profile"

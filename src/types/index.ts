@@ -15,9 +15,19 @@ export interface Employee {
   city: string;
   profilePicture?: string;
   position: string;
-  department: string;
+  departmentId: string;
+  departmentName?: string;
   hireDate: string;
   status: "active" | "inactive";
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Department {
+  id: string;
+  name: string;
+  description?: string;
+  manager?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -31,6 +41,23 @@ export interface Client {
   city: string;
   status: "active" | "inactive" | "prospect";
   assignedTo: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PriceOffer {
+  id: string;
+  clientId: string;
+  title: string;
+  description: string;
+  amount: number;
+  currency: string;
+  status: "pending" | "accepted" | "rejected" | "expired";
+  date: string;
+  adminFile?: string;
+  employeeFile?: string;
+  adminFileName?: string;
+  employeeFileName?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -100,3 +127,12 @@ export interface PaginatedResponse<T> {
   perPage: number;
   totalPages: number;
 }
+
+// Export all types from individual files
+export * from "./employee";
+export * from "./department";
+export * from "./priceOffer";
+export * from "./client";
+export * from "./visit";
+export * from "./service";
+export * from "./requirement";

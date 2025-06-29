@@ -53,7 +53,33 @@
                 ]"
               >
                 <i class="pi pi-users mr-3"></i>
-                {{ $t("navigation.clients") }}
+                جميع العملاء
+              </router-link>
+
+              <router-link
+                to="/employee/potential-clients"
+                class="flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors"
+                :class="[
+                  $route.path === '/employee/potential-clients'
+                    ? 'bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300'
+                    : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700',
+                ]"
+              >
+                <i class="pi pi-user-plus mr-3"></i>
+                العملاء المحتملون
+              </router-link>
+
+              <router-link
+                to="/employee/real-clients"
+                class="flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors"
+                :class="[
+                  $route.path === '/employee/real-clients'
+                    ? 'bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300'
+                    : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700',
+                ]"
+              >
+                <i class="pi pi-check-circle mr-3"></i>
+                العملاء الحقيقيون
               </router-link>
             </nav>
           </div>

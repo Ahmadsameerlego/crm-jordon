@@ -1,6 +1,11 @@
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
-import type { Employee, PaginatedResponse } from "@/types";
+import type {
+  Employee,
+  PaginatedResponse,
+  CreateEmployeeRequest,
+  UpdateEmployeeRequest,
+} from "@/types/employee";
 
 export const useEmployeesStore = defineStore("employees", () => {
   const employees = ref<Employee[]>([]);
@@ -15,10 +20,12 @@ export const useEmployeesStore = defineStore("employees", () => {
       id: "1",
       name: "أحمد محمد",
       email: "ahmed@example.com",
+      password: "password123",
       phone: "+966501234567",
       city: "الرياض",
       position: "مدير مبيعات",
-      department: "المبيعات",
+      departmentId: "1",
+      departmentName: "قسم السوشيال ميديا",
       hireDate: "2023-01-15",
       status: "active",
       createdAt: "2023-01-15T00:00:00Z",
@@ -28,10 +35,12 @@ export const useEmployeesStore = defineStore("employees", () => {
       id: "2",
       name: "فاطمة علي",
       email: "fatima@example.com",
+      password: "password123",
       phone: "+966507654321",
       city: "جدة",
       position: "مستشار مبيعات",
-      department: "المبيعات",
+      departmentId: "2",
+      departmentName: "قسم البرمجة",
       hireDate: "2023-02-20",
       status: "active",
       createdAt: "2023-02-20T00:00:00Z",
@@ -41,10 +50,12 @@ export const useEmployeesStore = defineStore("employees", () => {
       id: "3",
       name: "محمد عبدالله",
       email: "mohammed@example.com",
+      password: "password123",
       phone: "+966509876543",
       city: "الدمام",
       position: "محلل بيانات",
-      department: "تقنية المعلومات",
+      departmentId: "3",
+      departmentName: "قسم التسويق",
       hireDate: "2023-03-10",
       status: "active",
       createdAt: "2023-03-10T00:00:00Z",
@@ -66,7 +77,9 @@ export const useEmployeesStore = defineStore("employees", () => {
           (emp) =>
             emp.name.toLowerCase().includes(search.toLowerCase()) ||
             emp.email.toLowerCase().includes(search.toLowerCase()) ||
-            emp.city.toLowerCase().includes(search.toLowerCase())
+            emp.city.toLowerCase().includes(search.toLowerCase()) ||
+            emp.position.toLowerCase().includes(search.toLowerCase()) ||
+            (emp.departmentName && emp.departmentName.toLowerCase().includes(search.toLowerCase()))
         );
       }
 
@@ -103,15 +116,21 @@ export const useEmployeesStore = defineStore("employees", () => {
     }
   };
 
-  const addEmployee = async (employeeData: Omit<Employee, "id" | "createdAt" | "updatedAt">) => {
+  const addEmployee = async (employeeData: CreateEmployeeRequest) => {
     isLoading.value = true;
     try {
       // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 500));
 
+      // Generate a random password if not provided
+      const password = employeeData.password || generateRandomPassword();
+
       const newEmployee: Employee = {
         ...employeeData,
+        password,
         id: Date.now().toString(),
+        status: "active",
+        hireDate: employeeData.hireDate || new Date().toISOString().split("T")[0],
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
@@ -119,7 +138,7 @@ export const useEmployeesStore = defineStore("employees", () => {
       mockEmployees.push(newEmployee);
       await getEmployees(currentPage.value);
 
-      return { success: true, data: newEmployee };
+      return { success: true, data: newEmployee, password };
     } catch (error) {
       return { success: false, error: "Failed to add employee" };
     } finally {
@@ -127,7 +146,7 @@ export const useEmployeesStore = defineStore("employees", () => {
     }
   };
 
-  const updateEmployee = async (id: string, employeeData: Partial<Employee>) => {
+  const updateEmployee = async (id: string, employeeData: UpdateEmployeeRequest) => {
     isLoading.value = true;
     try {
       // Simulate API call
@@ -180,6 +199,15 @@ export const useEmployeesStore = defineStore("employees", () => {
     return mockEmployees.find((emp) => emp.id === id);
   };
 
+  const generateRandomPassword = () => {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    let password = "";
+    for (let i = 0; i < 8; i++) {
+      password += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return password;
+  };
+
   return {
     employees,
     isLoading,
@@ -191,5 +219,6 @@ export const useEmployeesStore = defineStore("employees", () => {
     updateEmployee,
     deleteEmployee,
     getEmployeeById,
+    generateRandomPassword,
   };
 });

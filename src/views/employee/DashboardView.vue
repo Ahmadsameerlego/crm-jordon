@@ -189,9 +189,8 @@ const statsCards = computed(() => ({
 const recentClients = computed(() => myClients.value.slice(-5).reverse());
 const recentVisits = computed(() => myVisits.value.slice(-5).reverse());
 
-function getClientName(clientId) {
-  const client = myClients.value.find((c) => c.id === clientId);
-  return client ? client.companyName : "";
+function getClientName(clientId: string) {
+  return clientsStore.clients.find((c) => c.id === clientId)?.companyName || "غير محدد";
 }
 
 onMounted(() => {

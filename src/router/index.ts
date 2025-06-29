@@ -26,14 +26,30 @@ const router = createRouter({
           component: () => import("@/views/employee/ClientsView.vue"),
         },
         {
+          path: "potential-clients",
+          name: "EmployeePotentialClients",
+          component: () => import("@/views/employee/PotentialClientsView.vue"),
+        },
+        {
+          path: "real-clients",
+          name: "EmployeeRealClients",
+          component: () => import("@/views/employee/RealClientsView.vue"),
+        },
+        {
           path: "clients/:clientId/requests",
           name: "ClientRequests",
           component: () => import("@/views/employee/ClientRequestsView.vue"),
           props: true,
         },
+        {
+          path: "clients/:clientId/price-offers",
+          name: "ClientPriceOffers",
+          component: () => import("@/views/employee/PriceOffersView.vue"),
+          props: true,
+        },
       ],
     },
-        {
+    {
       path: "/",
       redirect: "/login",
     },
@@ -56,9 +72,27 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
+      path: "/admin/departments",
+      name: "Departments",
+      component: () => import("@/views/AdminDepartmentsView.vue"),
+      meta: { requiresAuth: true },
+    },
+    {
       path: "/admin/profile",
       name: "Profile",
       component: () => import("@/views/ProfileView.vue"),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/admin/clients",
+      name: "AdminClients",
+      component: () => import("@/views/AdminClientsView.vue"),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/admin/deals",
+      name: "AdminDeals",
+      component: () => import("@/views/AdminDealsView.vue"),
       meta: { requiresAuth: true },
     },
     {

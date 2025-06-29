@@ -83,9 +83,20 @@
                 class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer"
                 @click="sortBy('position')"
               >
-                {{ $t("employees.position") }}
+                المسمى الوظيفي
                 <i
                   v-if="sortField === 'position'"
+                  :class="sortOrder === 'asc' ? 'pi pi-sort-up' : 'pi pi-sort-down'"
+                  class="mr-1"
+                ></i>
+              </th>
+              <th
+                class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer"
+                @click="sortBy('departmentName')"
+              >
+                القسم
+                <i
+                  v-if="sortField === 'departmentName'"
                   :class="sortOrder === 'asc' ? 'pi pi-sort-up' : 'pi pi-sort-down'"
                   class="mr-1"
                 ></i>
@@ -140,6 +151,9 @@
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                 {{ employee.position }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                {{ employee.departmentName || "غير محدد" }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                 <div class="flex items-center space-x-2 space-x-reverse">
@@ -306,7 +320,7 @@
 
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                {{ $t("employees.position") }}
+                المسمى الوظيفي
               </label>
               <input
                 v-model="formData.position"
@@ -314,9 +328,45 @@
                 class="input-field"
                 :class="{ 'border-red-500': errors.position }"
                 required
+                placeholder="مثال: مدير مبيعات، مطور برمجيات"
               />
               <p v-if="errors.position" class="mt-1 text-sm text-red-600 dark:text-red-400">
                 {{ errors.position }}
+              </p>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                القسم
+              </label>
+              <select
+                v-model="formData.departmentId"
+                class="input-field"
+                :class="{ 'border-red-500': errors.departmentId }"
+                required
+              >
+                <option value="">اختر القسم</option>
+                <option v-for="dept in departments" :key="dept.id" :value="dept.id">
+                  {{ dept.name }}
+                </option>
+              </select>
+              <p v-if="errors.departmentId" class="mt-1 text-sm text-red-600 dark:text-red-400">
+                {{ errors.departmentId }}
+              </p>
+            </div>
+
+            <div v-if="!showEditModal">
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                كلمة المرور
+              </label>
+              <input
+                v-model="formData.password"
+                type="text"
+                class="input-field"
+                placeholder="اتركها فارغة لتوليد كلمة مرور عشوائية"
+              />
+              <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                إذا تركتها فارغة، سيتم توليد كلمة مرور عشوائية
               </p>
             </div>
 
@@ -350,18 +400,38 @@
         </div>
       </div>
     </div>
+
+    <!-- Success Modal for New Employee -->
+    <div v-if="showSuccessModal" class="modal-overlay">
+      <div class="modal-content p-6 max-w-md">
+        <div class="text-center">
+          <i class="pi pi-check-circle text-4xl text-green-500 mb-4"></i>
+          <h3 class="text-lg font-semibold mb-2">تم إضافة الموظف بنجاح</h3>
+          <p class="text-gray-600 dark:text-gray-400 mb-4">
+            تم إنشاء حساب للموظف الجديد. يرجى حفظ بيانات الدخول التالية:
+          </p>
+          <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg mb-4">
+            <p><strong>البريد الإلكتروني:</strong> {{ newEmployeeData.email }}</p>
+            <p><strong>كلمة المرور:</strong> {{ newEmployeeData.password }}</p>
+          </div>
+          <button @click="showSuccessModal = false" class="btn-primary">تم</button>
+        </div>
+      </div>
+    </div>
   </AdminLayout>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
 import { useEmployeesStore } from "@/stores/employees";
+import { useDepartmentsStore } from "@/stores/departments";
 import { useForm } from "@/composables/useForm";
 import { exportToCSV, exportToXLSX } from "@/utils/export";
-import type { Employee } from "@/types/employee";
+import type { Employee, CreateEmployeeRequest } from "@/types/employee";
 import AdminLayout from "@/components/AdminLayout.vue";
 
 const employeesStore = useEmployeesStore();
+const departmentsStore = useDepartmentsStore();
 
 // Table state
 const searchQuery = ref("");
@@ -373,20 +443,21 @@ const sortOrder = ref<"asc" | "desc">("asc");
 // Modal state
 const showAddModal = ref(false);
 const showEditModal = ref(false);
+const showSuccessModal = ref(false);
 const editingEmployee = ref<Employee | null>(null);
+const newEmployeeData = ref<{ email: string; password: string }>({ email: "", password: "" });
 
 // Form state
 const { formData, errors, isSubmitting, validateForm, resetForm } = useForm(
   {
     name: "",
     email: "",
+    password: "",
     phone: "",
     city: "",
     position: "",
+    departmentId: "",
     profilePicture: "",
-    department: "",
-    hireDate: "",
-    status: "active",
   },
   {
     name: { required: true, minLength: 2 },
@@ -394,13 +465,13 @@ const { formData, errors, isSubmitting, validateForm, resetForm } = useForm(
     phone: { required: true, minLength: 10 },
     city: { required: true },
     position: { required: true },
-    department: { required: true },
-    hireDate: { required: true },
-    status: { required: true },
+    departmentId: { required: true },
   }
 );
 
 // Computed properties
+const departments = computed(() => departmentsStore.getDepartments);
+
 const filteredEmployees = computed(() => {
   let filtered = employeesStore.employees;
 
@@ -412,7 +483,8 @@ const filteredEmployees = computed(() => {
         employee.email.toLowerCase().includes(query) ||
         employee.phone.includes(query) ||
         employee.city.toLowerCase().includes(query) ||
-        employee.position.toLowerCase().includes(query)
+        employee.position.toLowerCase().includes(query) ||
+        (employee.departmentName && employee.departmentName.toLowerCase().includes(query))
     );
   }
 
@@ -493,7 +565,7 @@ const exportData = () => {
     Phone: employee.phone,
     City: employee.city,
     Position: employee.position,
-    Department: employee.department,
+    Department: employee.departmentName || "غير محدد",
     HireDate: employee.hireDate,
     Status: employee.status,
   }));
@@ -509,10 +581,8 @@ const editEmployee = (employee: Employee) => {
   formData.phone = employee.phone;
   formData.city = employee.city;
   formData.position = employee.position;
+  formData.departmentId = employee.departmentId;
   formData.profilePicture = employee.profilePicture || "";
-  formData.department = employee.department;
-  formData.hireDate = employee.hireDate;
-  formData.status = employee.status;
   showEditModal.value = true;
 };
 
@@ -529,11 +599,16 @@ const handleSubmit = async () => {
 
   try {
     if (showEditModal.value && editingEmployee.value) {
-      await employeesStore.updateEmployee(editingEmployee.value.id, formData as Partial<Employee>);
+      await employeesStore.updateEmployee(editingEmployee.value.id, formData);
     } else {
-      await employeesStore.addEmployee(
-        formData as Omit<Employee, "id" | "createdAt" | "updatedAt">
-      );
+      const result = await employeesStore.addEmployee(formData as CreateEmployeeRequest);
+      if (result.success && result.password) {
+        newEmployeeData.value = {
+          email: formData.email,
+          password: result.password,
+        };
+        showSuccessModal.value = true;
+      }
     }
 
     closeModal();
@@ -552,6 +627,40 @@ const closeModal = () => {
 };
 
 onMounted(async () => {
-  await employeesStore.getEmployees();
+  await Promise.all([employeesStore.getEmployees(), departmentsStore.fetchDepartments()]);
 });
 </script>
+
+<style scoped>
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  max-height: 90vh;
+  overflow-y: auto;
+  max-width: 500px;
+  width: 90%;
+}
+
+.dark .modal-content {
+  background: #1f2937;
+  color: white;
+}
+
+.input-field {
+  @apply w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-800 dark:text-gray-100;
+}
+</style>

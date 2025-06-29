@@ -57,6 +57,19 @@
               </router-link>
 
               <router-link
+                to="/admin/departments"
+                class="flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors"
+                :class="[
+                  $route.path === '/admin/departments'
+                    ? 'bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300'
+                    : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700',
+                ]"
+              >
+                <i class="pi pi-building mr-3"></i>
+                الأقسام
+              </router-link>
+
+              <router-link
                 to="/admin/clients"
                 class="flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors"
                 :class="[

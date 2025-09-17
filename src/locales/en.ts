@@ -20,6 +20,10 @@ export default {
     language: "Language",
     theme: "Theme",
     profile: "Profile",
+    title : 'Title',
+    date: "Date",
+    amount : "Amount",
+    time: "Time",
   },
   auth: {
     login: "Login",
@@ -29,6 +33,7 @@ export default {
     forgotPassword: "Forgot Password?",
     loginError: "Login Error",
     invalidCredentials: "Invalid credentials",
+    user_type : 'User Type'
   },
   dashboard: {
     title: "Dashboard",
@@ -36,10 +41,12 @@ export default {
       totalClients: "Total Clients",
       totalEmployees: "Total Employees",
       totalQuotations: "Total Quotations",
-      totalDeals: "Total Deals",
+      totalDeals: "Total Approvals",
       closedDeals: "Closed Deals",
       monthlyRevenue: "Monthly Revenue",
       conversionRate: "Conversion Rate",
+      newOffers : "New Offers",
+      refusedOffers : "Refused Offers",
     },
     recentClients: "Recent Clients",
     recentQuotations: "Recent Quotations",

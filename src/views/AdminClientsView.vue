@@ -1,6 +1,8 @@
 <template>
   <AdminLayout>
     <template #title>العملاء</template>
+
+    <!-- Header -->
     <div class="mb-6 flex flex-col md:flex-row md:justify-between md:items-center gap-4">
       <h2 class="text-xl font-bold">كل العملاء</h2>
       <div class="flex flex-col md:flex-row gap-2 items-center">
@@ -8,128 +10,103 @@
           v-model="searchQuery"
           type="text"
           placeholder="ابحث باسم الشركة أو المسئول..."
-          class="pl-3 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-800 dark:text-gray-100"
+          class="pl-3 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg 
+                 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-800 dark:text-gray-100"
         />
-        <select
-          v-model="selectedEmployee"
-          class="pl-3 pr-8 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-800 dark:text-gray-100"
-        >
-          <option value="">كل الموظفين</option>
-          <option v-for="emp in employeeNames" :key="emp.id" :value="emp.id">
-            {{ emp.name }}
-          </option>
-        </select>
       </div>
     </div>
-    <div class="card">
+
+    <!-- Loading -->
+    <div v-if="isLoading" class="flex justify-center items-center h-64">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+    </div>
+
+    <!-- Error -->
+    <div v-else-if="error" class="card p-6 text-center text-red-600 dark:text-red-400">
+      <i class="pi pi-exclamation-triangle text-2xl mb-2"></i>
+      <p>{{ error }}</p>
+      <button @click="fetchClients" class="btn-primary mt-4">إعادة المحاولة</button>
+    </div>
+
+    <!-- Clients Table -->
+    <div v-else class="card">
       <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
           <thead class="bg-gray-50 dark:bg-gray-700">
             <tr>
-              <th
-                class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-              >
-                اسم الشركة
-              </th>
-              <th
-                class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-              >
-                اسم المسئول
-              </th>
-              <th
-                class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-              >
-                رقم الجوال
-              </th>
-              <th
-                class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-              >
-                البريد
-              </th>
-              <th
-                class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-              >
-                إجراءات
-              </th>
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">اسم الشركة</th>
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">اسم المسئول</th>
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">رقم الجوال</th>
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">اسم الموظف</th>
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">إجراءات</th>
             </tr>
           </thead>
-          <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+          <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200">
             <tr v-for="client in filteredClients" :key="client.id">
-              <td
-                class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white"
-              >
-                {{ client.companyName }}
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                {{ client.contactName }}
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                {{ client.mobile }}
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                {{ client.email }}
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium flex flex-col gap-2">
-                <button class="btn-secondary" @click="openDetails(client)">عرض التفاصيل</button>
-                <button class="btn-primary" @click="openPriceOffersModal(client)">
-                  إدارة عروض الأسعار ({{ getPriceOffersCount(client.id) }})
-                </button>
+              <td class="px-6 py-4 text-sm font-medium">{{ client.first_name }}</td>
+              <td class="px-6 py-4 text-sm">{{ client.full_name }}</td>
+              <td class="px-6 py-4 text-sm">{{ client.phone_info }}</td>
+              <td class="px-6 py-4 text-sm">{{ client.upload_by_name }}</td>
+              <td class="px-6 py-4 text-sm font-medium flex gap-2">
+                <button class="btn-secondary" @click="openDetails(client)">عرض</button>
+                <button class="btn-primary" @click="editClient(client)">تعديل</button>
+                <button class="btn-danger" @click="confirmDelete(client)">حذف</button>
               </td>
             </tr>
           </tbody>
         </table>
       </div>
+
+      <!-- Empty -->
+      <div v-if="filteredClients.length === 0" class="text-center py-12">
+        <i class="pi pi-users text-4xl text-gray-400 mb-4"></i>
+        <p class="text-gray-500">لا يوجد عملاء</p>
+      </div>
     </div>
 
-    <!-- Client Details Modal -->
+    <!-- Details Modal -->
     <div v-if="showDetailsModal" class="modal-overlay">
-      <div class="modal-content p-4 max-w-2xl">
+      <div class="modal-content p-6 max-w-2xl">
         <h3 class="text-lg font-semibold mb-4">تفاصيل العميل</h3>
-        <div class="mb-4">
-          <strong>اسم الشركة:</strong> {{ selectedClient?.companyName }}<br />
-          <strong>اسم المسئول:</strong> {{ selectedClient?.contactName }}<br />
-          <strong>رقم الجوال:</strong> {{ selectedClient?.mobile }}<br />
-          <strong>البريد:</strong> {{ selectedClient?.email }}<br />
-        </div>
-        <div class="mb-4">
-          <h4 class="font-bold mb-2">الزيارات</h4>
-          <ul class="list-disc pl-6">
-            <li v-for="visit in getVisits(selectedClient?.id || '')" :key="visit.id">
-              {{ visit.dateTime }} - {{ visit.report || "لا يوجد تقرير" }}
-            </li>
-            <li v-if="getVisits(selectedClient?.id || '').length === 0">لا يوجد زيارات</li>
-          </ul>
-        </div>
-        <div class="mb-4">
-          <h4 class="font-bold mb-2">المتطلبات</h4>
-          <ul class="list-disc pl-6">
-            <li v-for="req in getRequirements(selectedClient?.id || '')" :key="req.id">
-              {{ req.service }} - {{ req.description }}
-            </li>
-            <li v-if="getRequirements(selectedClient?.id || '').length === 0">لا يوجد متطلبات</li>
-          </ul>
-        </div>
-        <div class="flex justify-end">
+        <p><strong>اسم الشركة:</strong> {{ selectedClient?.companyName }}</p>
+        <p><strong>اسم المسئول:</strong> {{ selectedClient?.contactName }}</p>
+        <p><strong>الجوال:</strong> {{ selectedClient?.mobile }}</p>
+        <p><strong>البريد:</strong> {{ selectedClient?.email }}</p>
+        <div class="flex justify-end mt-4">
           <button class="btn-secondary" @click="showDetailsModal = false">إغلاق</button>
         </div>
       </div>
     </div>
 
-    <!-- Price Offers Modal -->
-    <div v-if="showPriceOffersModal" class="modal-overlay">
-      <div class="modal-content p-4 max-w-6xl h-5/6">
-        <div class="flex justify-between items-center mb-4">
-          <h3 class="text-lg font-semibold">عروض الأسعار - {{ selectedClient?.companyName }}</h3>
-          <button @click="showPriceOffersModal = false" class="text-gray-500 hover:text-gray-700">
-            <i class="pi pi-times text-xl"></i>
+    <!-- Edit Modal -->
+    <div v-if="showEditModal" class="modal-overlay">
+      <div class="modal-content p-6 max-w-md">
+        <h3 class="text-lg font-semibold mb-4">تعديل العميل</h3>
+        <form @submit.prevent="handleUpdate">
+          <input v-model="formData.companyName" placeholder="اسم الشركة" class="input mb-3" required />
+          <input v-model="formData.contactName" placeholder="اسم المسئول" class="input mb-3" required />
+          <input v-model="formData.mobile" placeholder="الجوال" class="input mb-3" required />
+          <input v-model="formData.email" placeholder="البريد" class="input mb-3" />
+          <div class="flex justify-end gap-2">
+            <button type="button" class="btn-secondary" @click="closeModals">إلغاء</button>
+            <button type="submit" class="btn-primary" :disabled="isSubmitting">
+              <span v-if="isSubmitting" class="animate-spin mr-2">⏳</span> تحديث
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Delete Confirmation -->
+    <div v-if="showDeleteModal" class="modal-overlay">
+      <div class="modal-content p-6 max-w-md">
+        <h3 class="text-lg font-semibold mb-4">تأكيد الحذف</h3>
+        <p class="mb-4">هل تريد حذف العميل <b>{{ clientToDelete?.companyName }}</b>؟</p>
+        <div class="flex justify-end gap-2">
+          <button class="btn-secondary" @click="showDeleteModal = false">إلغاء</button>
+          <button class="btn-danger" @click="handleDelete" :disabled="isSubmitting">
+            <span v-if="isSubmitting" class="animate-spin mr-2">⏳</span> حذف
           </button>
-        </div>
-        <div class="h-full overflow-y-auto">
-          <PriceOffersManager
-            :client-id="selectedClient?.id || ''"
-            :client-name="selectedClient?.companyName || ''"
-            :is-employee="false"
-          />
         </div>
       </div>
     </div>
@@ -137,127 +114,121 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, onMounted } from "vue";
+import axios from "axios";
 import AdminLayout from "@/components/AdminLayout.vue";
-import type { Client } from "@/types/client";
-import { useEmployeeClientsStore } from "@/stores/employeeClients";
-import { useEmployeeVisitsStore } from "@/stores/employeeVisits";
-import { useEmployeeRequirementsStore } from "@/stores/employeeRequirements";
-import PriceOffersManager from "@/components/PriceOffersManager.vue";
 
-const clientsStore = useEmployeeClientsStore();
-const visitsStore = useEmployeeVisitsStore();
-const reqsStore = useEmployeeRequirementsStore();
+interface Client {
+  id: number;
+  companyName: string;
+  contactName: string;
+  mobile: string;
+  email: string;
+}
 
+const clients = ref<Client[]>([]);
 const searchQuery = ref("");
-const selectedEmployee = ref("");
+const isLoading = ref(false);
+const error = ref<string | null>(null);
 
-const clients = computed(() => clientsStore.clients);
+// Modals
+const showDetailsModal = ref(false);
+const showEditModal = ref(false);
+const showDeleteModal = ref(false);
+const selectedClient = ref<Client | null>(null);
+const clientToDelete = ref<Client | null>(null);
 
-// Unique employee names for dropdown (fake for demo)
-const employeeNames = computed(() => {
-  // In real app, fetch from employees store
-  const map: Record<string, string> = {
-    emp1: "أحمد علي",
-    emp2: "سارة محمد",
-    emp3: "خالد سعيد",
-  };
-  return Array.from(new Set(clients.value.map((c) => c.employeeId))).map((id) => ({
-    id,
-    name: map[id as keyof typeof map] || id,
-  }));
+const isSubmitting = ref(false);
+const formData = ref<Client>({
+  id: 0,
+  companyName: "",
+  contactName: "",
+  mobile: "",
+  email: "",
 });
 
 const filteredClients = computed(() => {
-  let result = clients.value;
-  if (searchQuery.value) {
-    const q = searchQuery.value.toLowerCase();
-    result = result.filter(
-      (c) =>
-        (c.companyName || "").toLowerCase().includes(q) ||
-        (c.contactName || "").toLowerCase().includes(q)
-    );
-  }
-  if (selectedEmployee.value) {
-    result = result.filter((c) => c.employeeId === selectedEmployee.value);
-  }
-  return result;
+  if (!searchQuery.value) return clients.value;
+  return clients.value.filter(
+    (c) =>
+      c.companyName.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+      c.contactName.toLowerCase().includes(searchQuery.value.toLowerCase())
+  );
 });
 
-// Inject fake data for demonstration
-if (clientsStore.clients.length === 0) {
-  clientsStore.clients.push(
-    {
-      id: "1",
-      employeeId: "emp1",
-      companyName: "شركة المستقبل",
-      companyAddress: "الرياض، السعودية",
-      contactName: "أحمد علي",
-      mobile: "0501234567",
-      email: "ahmed@example.com",
-      website: "https://future.com",
-      facebook: "futurefb",
-      instagram: "futureinsta",
-      notes: "عميل مهم",
-      status: "regular",
-    },
-    {
-      id: "2",
-      employeeId: "emp2",
-      companyName: "مؤسسة التقنية",
-      companyAddress: "جدة، السعودية",
-      contactName: "سارة محمد",
-      mobile: "0559876543",
-      email: "sara@example.com",
-      website: "https://tech.com",
-      facebook: "techfb",
-      instagram: "techinsta",
-      notes: "يحتاج متابعة شهرية",
-      status: "potential",
-    },
-    {
-      id: "3",
-      employeeId: "emp3",
-      companyName: "حلول الأعمال",
-      companyAddress: "الدمام، السعودية",
-      contactName: "خالد سعيد",
-      mobile: "0532468101",
-      email: "khaled@example.com",
-      website: "https://business-solutions.com",
-      facebook: "businessfb",
-      instagram: "businessinsta",
-      notes: "عميل جديد",
-      status: "real",
-    }
-  );
+// Fetch clients
+async function fetchClients() {
+  isLoading.value = true;
+  error.value = null;
+  try {
+    const { data } = await axios.post("https://crm.be-kite.com/backend/api/clients", {
+      lang: "ar",
+    });
+    clients.value = data.data || [];
+  } catch (err) {
+    error.value = "حدث خطأ أثناء تحميل العملاء";
+  } finally {
+    isLoading.value = false;
+  }
 }
-
-const showDetailsModal = ref(false);
-const selectedClient = ref<Client | null>(null);
-const showPriceOffersModal = ref(false);
 
 function openDetails(client: Client) {
   selectedClient.value = client;
   showDetailsModal.value = true;
 }
 
-function getVisits(clientId: string) {
-  return visitsStore.visits.filter((v) => v.clientId === clientId);
+function editClient(client: Client) {
+  formData.value = { ...client };
+  showEditModal.value = true;
 }
 
-function getRequirements(clientId: string) {
-  return reqsStore.requirements.filter((r) => r.clientId === clientId);
+function confirmDelete(client: Client) {
+  clientToDelete.value = client;
+  showDeleteModal.value = true;
 }
 
-function openPriceOffersModal(client: Client) {
-  selectedClient.value = client;
-  showPriceOffersModal.value = true;
+function closeModals() {
+  showEditModal.value = false;
+  showDeleteModal.value = false;
+  formData.value = { id: 0, companyName: "", contactName: "", mobile: "", email: "" };
 }
 
-function getPriceOffersCount(clientId: string) {
-  return clientsStore.getPriceOffersByClient(clientId).length;
+// Update client
+async function handleUpdate() {
+  if (!formData.value.id) return;
+  isSubmitting.value = true;
+  try {
+    await axios.post("https://crm.be-kite.com/backend/api/update-client", formData.value);
+    const index = clients.value.findIndex((c) => c.id === formData.value.id);
+    if (index !== -1) clients.value[index] = { ...formData.value };
+    showEditModal.value = false;
+  } catch (err) {
+    console.error("Error updating client", err);
+  } finally {
+    isSubmitting.value = false;
+  }
 }
+
+// Delete client
+async function handleDelete() {
+  if (!clientToDelete.value) return;
+  isSubmitting.value = true;
+  try {
+    await axios.post("https://crm.be-kite.com/backend/api/delete-client", {
+      id: clientToDelete.value.id,
+    });
+    clients.value = clients.value.filter((c) => c.id !== clientToDelete.value!.id);
+    showDeleteModal.value = false;
+  } catch (err) {
+    console.error("Error deleting client", err);
+  } finally {
+    isSubmitting.value = false;
+  }
+}
+
+onMounted(fetchClients);
 </script>
+
 
 <style scoped>
 .card {

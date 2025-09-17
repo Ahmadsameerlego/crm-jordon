@@ -10,19 +10,19 @@
             v-model="searchQuery"
             type="text"
             :placeholder="$t('common.search')"
-            class="pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-800 dark:text-gray-100"
+            class="pl-10 pr-2  py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-800 dark:text-gray-100"
           />
           <i
-            class="pi pi-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+            class="pi pi-search absolute left-2 right-auto top-3 transform -translate-y-1/2 text-gray-400"
           ></i>
         </div>
       </div>
       <div class="flex items-center space-x-4">
-        <button @click="exportData" class="btn-secondary">
+        <button @click="exportData" class="btn-secondary mx-3">
           <i class="pi pi-download mr-2"></i>
           {{ $t("table.export") }}
         </button>
-        <button @click="showAddModal = true" class="btn-primary">
+        <button @click="showAddModal = true" class="btn-primary mx-3">
           <i class="pi pi-plus mr-2"></i>
           {{ $t("employees.addEmployee") }}
         </button>
@@ -110,7 +110,7 @@
           </thead>
           <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
             <tr
-              v-for="employee in employees"
+              v-for="employee in filteredEmployees"
               :key="employee.id"
               class="hover:bg-gray-50 dark:hover:bg-gray-700"
             >
@@ -382,6 +382,11 @@
               />
             </div>
 
+            <div v-if="errorMessages">
+              <p class="mt-1 text-sm text-red-600 dark:text-red-400">
+                {{ errorMessages }}
+              </p>
+            </div>
             <div class="flex justify-end space-x-3 space-x-reverse pt-4">
               <button type="button" @click="closeModal" class="btn-secondary">
                 {{ $t("common.cancel") }}
@@ -423,23 +428,24 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
-import { useEmployeesStore } from "@/stores/employees";
+import axios from "axios";
 import { useDepartmentsStore } from "@/stores/departments";
 import { useForm } from "@/composables/useForm";
 import { exportToCSV, exportToXLSX } from "@/utils/export";
-import type { Employee, CreateEmployeeRequest } from "@/types/employee";
+import type { Employee } from "@/types/employee";
 import AdminLayout from "@/components/AdminLayout.vue";
 
-const employeesStore = useEmployeesStore();
+// Stores
 const departmentsStore = useDepartmentsStore();
 
 // Table state
+const employees = ref<Employee[]>([]);
 const searchQuery = ref("");
 const currentPage = ref(1);
 const itemsPerPage = ref(10);
 const sortField = ref<keyof Employee>("name");
 const sortOrder = ref<"asc" | "desc">("asc");
-
+const errorMessages = ref("");
 // Modal state
 const showAddModal = ref(false);
 const showEditModal = ref(false);
@@ -462,118 +468,150 @@ const { formData, errors, isSubmitting, validateForm, resetForm } = useForm(
   {
     name: { required: true, minLength: 2 },
     email: { required: true, pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/ },
-    phone: { required: true, minLength: 10 },
+    phone: { required: true, minLength: 7 },
     city: { required: true },
     position: { required: true },
     departmentId: { required: true },
   }
 );
 
-// Computed properties
-const departments = computed(() => departmentsStore.getDepartments);
+// Fetch employees
+const fetchEmployees = async () => {
+  try {
+    const { data } = await axios.post("https://crm.be-kite.com/backend/api/employees", { params: { lang: "ar" } });
+    employees.value = data.data.map((emp: any) => ({
+      id: emp.id,
+      name: emp.first_name,
+      email: emp.email,
+      phone: emp.phone,
+      city: emp.city,
+      position: emp.job,
+      departmentName: emp.section_title,
+      departmentId: emp.section_id,
+      profilePicture: emp.avatar_photo,
+    }));
+  } catch (error) {
+    console.error("Error fetching employees:", error);
+  }
+};
 
-const filteredEmployees = computed(() => {
-  let filtered = employeesStore.employees;
-
-  if (searchQuery.value) {
-    const query = searchQuery.value.toLowerCase();
-    filtered = filtered.filter(
-      (employee) =>
-        employee.name.toLowerCase().includes(query) ||
-        employee.email.toLowerCase().includes(query) ||
-        employee.phone.includes(query) ||
-        employee.city.toLowerCase().includes(query) ||
-        employee.position.toLowerCase().includes(query) ||
-        (employee.departmentName && employee.departmentName.toLowerCase().includes(query))
+// fetch departments 
+const departments = ref<Array<{ id: number; name: string; description: string; manager: string; createdAt: string }>>([]);
+const fetchDepartments = async () => {
+  try {
+    const { data } = await axios.post(
+      "https://crm.be-kite.com/backend/api/sections?lang=ar"
     );
+
+    departments.value = data.data.map((d: any) => ({
+      id: d.id,
+      name: d.title,
+      description: d.desc,
+      manager: d.manager,
+      createdAt: d.created_at || new Date().toISOString(),
+    }));
+  } catch (error) {
+    console.error("Error fetching departments:", error);
   }
+};
 
-  // Sort
-  filtered.sort((a, b) => {
-    const aValue = a[sortField.value];
-    const bValue = b[sortField.value];
-    if (typeof aValue === "string" && typeof bValue === "string") {
-      return sortOrder.value === "asc"
-        ? aValue.localeCompare(bValue)
-        : bValue.localeCompare(aValue);
+// Add employee
+const addEmployee = async () => {
+  if (!validateForm()) return;
+
+  isSubmitting.value = true;
+  try {
+    const payload = {
+      lang: "ar",
+      user_type: "employee",
+      first_name: formData.name,
+      email: formData.email,
+      phone: formData.phone,
+      city: formData.city,
+      section_id: formData.departmentId,
+      job: formData.position,
+      password: formData.password,
+      photo: formData.profilePicture,
+    };
+
+    const { data } = await axios.post("https://crm.be-kite.com/backend/api/register", payload);
+
+    if (data.key===1 ) {
+      newEmployeeData.value = {
+        email: formData.email,
+        password: data.password,
+      };
+      showSuccessModal.value = true;
+          await fetchEmployees();
+    closeModal();
+
+    }else{
+      errorMessages.value = data.msg || "حدث خطأ ما";
     }
-    return 0;
-  });
 
-  return filtered;
-});
+  } catch (error) {
+    console.error("Error adding employee:", error);
+  } finally {
+    isSubmitting.value = false;
+  }
+};
 
-const totalItems = computed(() => filteredEmployees.value.length);
-const totalPages = computed(() => Math.ceil(totalItems.value / itemsPerPage.value));
-const startIndex = computed(() => (currentPage.value - 1) * itemsPerPage.value);
-const endIndex = computed(() => Math.min(startIndex.value + itemsPerPage.value, totalItems.value));
+// Update employee
+const updateEmployee = async () => {
+  if (!validateForm() || !editingEmployee.value) return;
 
-const employees = computed(() => {
-  return filteredEmployees.value.slice(startIndex.value, endIndex.value);
-});
+  isSubmitting.value = true;
+  try {
+    const payload = {
+      user_id: editingEmployee.value.id,
+      first_name: formData.name,
+      email: formData.email,
+      phone: formData.phone,
+      city: formData.city,
+      section_id: formData.departmentId,
+      job: formData.position,
+      photo: formData.profilePicture,
+    };
 
-const visiblePages = computed(() => {
-  const pages = [];
-  const maxVisible = 5;
-
-  if (totalPages.value <= maxVisible) {
-    for (let i = 1; i <= totalPages.value; i++) {
-      pages.push(i);
-    }
+   const {data} =  await axios.post("https://crm.be-kite.com/backend/api/update-user", payload);
+   if (data.key===1 ) {
+     await fetchEmployees();
+     closeModal();
+   }else{
+     errorMessages.value = data.msg || "حدث خطأ ما";
+   }
+  } catch (error) {
+    console.error("Error updating employee:", error);
+  } finally {
+    isSubmitting.value = false;
+  }
+};
+const handleSubmit = async () => {
+  console.log("Submitting form...");
+  if (showEditModal.value) {
+    await updateEmployee();
   } else {
-    const start = Math.max(1, currentPage.value - 2);
-    const end = Math.min(totalPages.value, start + maxVisible - 1);
-
-    for (let i = start; i <= end; i++) {
-      pages.push(i);
-    }
-  }
-
-  return pages;
-});
-
-// Methods
-const sortBy = (field: keyof Employee) => {
-  if (sortField.value === field) {
-    sortOrder.value = sortOrder.value === "asc" ? "desc" : "asc";
-  } else {
-    sortField.value = field;
-    sortOrder.value = "asc";
+    await addEmployee();
   }
 };
+// Delete employee
+const deleteEmployee = async (id: number) => {
+  if (!confirm("هل أنت متأكد أنك تريد حذف هذا الموظف؟")) return;
 
-const goToPage = (page: number) => {
-  currentPage.value = page;
-};
+  try {
+   const {data} = await axios.post("https://crm.be-kite.com/backend/api/destroy-user", { user_id: id });
 
-const nextPage = () => {
-  if (currentPage.value < totalPages.value) {
-    currentPage.value++;
+   if (data.key===1 ) {
+     await fetchEmployees();
+   }else{
+     errorMessages.value = data.msg || "حدث خطأ ما";
+   }
+  } catch (error) {
+    console.error("Error deleting employee:", error);
   }
 };
 
-const previousPage = () => {
-  if (currentPage.value > 1) {
-    currentPage.value--;
-  }
-};
-
-const exportData = () => {
-  const data = filteredEmployees.value.map((employee) => ({
-    Name: employee.name,
-    Email: employee.email,
-    Phone: employee.phone,
-    City: employee.city,
-    Position: employee.position,
-    Department: employee.departmentName || "غير محدد",
-    HireDate: employee.hireDate,
-    Status: employee.status,
-  }));
-
-  exportToCSV(data, "employees");
-  exportToXLSX(data, "employees");
-};
-
+// Edit modal
 const editEmployee = (employee: Employee) => {
   editingEmployee.value = employee;
   formData.name = employee.name;
@@ -586,36 +624,48 @@ const editEmployee = (employee: Employee) => {
   showEditModal.value = true;
 };
 
-const deleteEmployee = async (id: string) => {
-  if (confirm("Are you sure you want to delete this employee?")) {
-    await employeesStore.deleteEmployee(id);
+// Pagination + Sorting
+const filteredEmployees = computed(() => {
+  let filtered = employees.value;
+
+  if (searchQuery.value) {
+    const query = searchQuery.value.toLowerCase();
+    filtered = filtered.filter(
+      (e) =>
+        e.name.toLowerCase().includes(query) ||
+        e.email.toLowerCase().includes(query) ||
+        e.phone.includes(query) ||
+        e.city?.toLowerCase().includes(query) ||
+        e.position.toLowerCase().includes(query) ||
+        (e.departmentName && e.departmentName.toLowerCase().includes(query))
+    );
   }
-};
 
-const handleSubmit = async () => {
-  if (!validateForm()) return;
-
-  isSubmitting.value = true;
-
-  try {
-    if (showEditModal.value && editingEmployee.value) {
-      await employeesStore.updateEmployee(editingEmployee.value.id, formData);
-    } else {
-      const result = await employeesStore.addEmployee(formData as CreateEmployeeRequest);
-      if (result.success && result.password) {
-        newEmployeeData.value = {
-          email: formData.email,
-          password: result.password,
-        };
-        showSuccessModal.value = true;
-      }
+  filtered.sort((a, b) => {
+    const aValue = a[sortField.value];
+    const bValue = b[sortField.value];
+    if (typeof aValue === "string" && typeof bValue === "string") {
+      return sortOrder.value === "asc" ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
     }
+    return 0;
+  });
 
-    closeModal();
-  } catch (error) {
-    console.error("Error saving employee:", error);
-  } finally {
-    isSubmitting.value = false;
+  return filtered;
+});
+
+const totalItems = computed(() => filteredEmployees.value.length);
+const totalPages = computed(() => Math.ceil(totalItems.value / itemsPerPage.value));
+const startIndex = computed(() => (currentPage.value - 1) * itemsPerPage.value);
+const endIndex = computed(() => Math.min(startIndex.value + itemsPerPage.value, totalItems.value));
+
+const paginatedEmployees = computed(() => filteredEmployees.value.slice(startIndex.value, endIndex.value));
+
+const sortBy = (field: keyof Employee) => {
+  if (sortField.value === field) {
+    sortOrder.value = sortOrder.value === "asc" ? "desc" : "asc";
+  } else {
+    sortField.value = field;
+    sortOrder.value = "asc";
   }
 };
 
@@ -626,10 +676,26 @@ const closeModal = () => {
   resetForm();
 };
 
+// Export
+const exportData = () => {
+  const data = employees.value.map((employee) => ({
+    Name: employee.name,
+    Email: employee.email,
+    Phone: employee.phone,
+    City: employee.city,
+    Position: employee.position,
+    Department: employee.departmentName || "غير محدد",
+  }));
+  exportToCSV(data, "employees");
+  exportToXLSX(data, "employees");
+};
+
 onMounted(async () => {
-  await Promise.all([employeesStore.getEmployees(), departmentsStore.fetchDepartments()]);
+  await Promise.all([fetchEmployees(), departmentsStore.fetchDepartments()]);
+  await fetchDepartments();
 });
 </script>
+
 
 <style scoped>
 .modal-overlay {

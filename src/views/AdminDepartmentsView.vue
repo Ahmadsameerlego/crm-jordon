@@ -13,12 +13,12 @@
             class="pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-800 dark:text-gray-100"
           />
           <i
-            class="pi pi-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+            class="pi pi-search absolute left-2 right-auto top-3 transform -translate-y-1/2 text-gray-400"
           ></i>
         </div>
       </div>
-      <div class="flex items-center space-x-4">
-        <button @click="exportData" class="btn-secondary">
+      <div class="flex items-center space-x-4 ">
+        <button @click="exportData" class="btn-secondary mx-3">
           <i class="pi pi-download mr-2"></i>
           تصدير البيانات
         </button>
@@ -221,17 +221,17 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
-import { useDepartmentsStore } from "@/stores/departments";
-import type {
-  Department,
-  CreateDepartmentRequest,
-  UpdateDepartmentRequest,
-} from "@/types/department";
+import axios from "axios";
 import AdminLayout from "@/components/AdminLayout.vue";
 
-const departmentsStore = useDepartmentsStore();
+interface Department {
+  id: number;
+  name: string;
+  description: string;
+  manager: string;
+  createdAt?: string;
+}
 
-// Reactive data
 const searchQuery = ref("");
 const sortField = ref<keyof Department>("name");
 const sortOrder = ref<"asc" | "desc">("asc");
@@ -242,17 +242,42 @@ const isSubmitting = ref(false);
 const editingDepartment = ref<Department | null>(null);
 const departmentToDelete = ref<Department | null>(null);
 
-const formData = ref<CreateDepartmentRequest>({
+const formData = ref({
   name: "",
   description: "",
   manager: "",
 });
 
-// Computed
-const isLoading = computed(() => departmentsStore.isLoading);
-const error = computed(() => departmentsStore.error);
-const departments = computed(() => departmentsStore.getDepartments);
+// state
+const isLoading = ref(false);
+const error = ref<string | null>(null);
+const departments = ref<Department[]>([]);
 
+// fetch departments (POST not GET)
+const fetchDepartments = async () => {
+  isLoading.value = true;
+  error.value = null;
+  try {
+    const { data } = await axios.post(
+      "https://crm.be-kite.com/backend/api/sections?lang=ar"
+    );
+
+    departments.value = data.data.map((d: any) => ({
+      id: d.id,
+      name: d.title,
+      description: d.desc,
+      manager: d.manager,
+      createdAt: d.created_at || new Date().toISOString(),
+    }));
+  } catch (err: any) {
+    error.value = "فشل في تحميل الأقسام";
+    console.error(err);
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+// sort + search
 const filteredDepartments = computed(() => {
   let filtered = departments.value;
 
@@ -262,29 +287,24 @@ const filteredDepartments = computed(() => {
         dept.name.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
         (dept.description &&
           dept.description.toLowerCase().includes(searchQuery.value.toLowerCase())) ||
-        (dept.manager && dept.manager.toLowerCase().includes(searchQuery.value.toLowerCase()))
+        (dept.manager &&
+          dept.manager.toLowerCase().includes(searchQuery.value.toLowerCase()))
     );
   }
 
-  // Sort
+  // sort
   filtered.sort((a, b) => {
-    const aValue = a[sortField.value];
-    const bValue = b[sortField.value];
-
+    const aValue = a[sortField.value] || "";
+    const bValue = b[sortField.value] || "";
     if (sortOrder.value === "asc") {
-      return (aValue || "") > (bValue || "") ? 1 : -1;
+      return aValue > bValue ? 1 : -1;
     } else {
-      return (aValue || "") < (bValue || "") ? 1 : -1;
+      return aValue < bValue ? 1 : -1;
     }
   });
 
   return filtered;
 });
-
-// Methods
-const fetchDepartments = async () => {
-  await departmentsStore.fetchDepartments();
-};
 
 const sortBy = (field: keyof Department) => {
   if (sortField.value === field) {
@@ -325,12 +345,18 @@ const deleteDepartment = (department: Department) => {
   showDeleteModal.value = true;
 };
 
+// delete request
 const confirmDelete = async () => {
   if (!departmentToDelete.value) return;
 
   isSubmitting.value = true;
   try {
-    await departmentsStore.deleteDepartment(departmentToDelete.value.id);
+    await axios.post("https://crm.be-kite.com/backend/api/delete-section", {
+      id: departmentToDelete.value.id,
+    });
+    departments.value = departments.value.filter(
+      (d) => d.id !== departmentToDelete.value?.id
+    );
     showDeleteModal.value = false;
     departmentToDelete.value = null;
   } catch (err) {
@@ -340,16 +366,37 @@ const confirmDelete = async () => {
   }
 };
 
+// add/update
 const handleSubmit = async () => {
   isSubmitting.value = true;
   try {
     if (showEditModal.value && editingDepartment.value) {
-      await departmentsStore.updateDepartment(
-        editingDepartment.value.id,
-        formData.value as UpdateDepartmentRequest
-      );
+      await axios.post("https://crm.be-kite.com/backend/api/update-section", {
+        id: editingDepartment.value.id,
+        title: formData.value.name,
+        desc: formData.value.description,
+        manager: formData.value.manager,
+      });
+
+      // تحديث في الواجهة
+      editingDepartment.value.name = formData.value.name;
+      editingDepartment.value.description = formData.value.description;
+      editingDepartment.value.manager = formData.value.manager;
     } else {
-      await departmentsStore.createDepartment(formData.value);
+      const { data } = await axios.post(
+        "https://crm.be-kite.com/backend/api/add-section",
+        {
+          title: formData.value.name,
+          desc: formData.value.description,
+          manager: formData.value.manager,
+        }
+      );
+      departments.value.push({
+        id: data.id,
+        name: formData.value.name,
+        description: formData.value.description,
+        manager: formData.value.manager,
+      });
     }
     closeModal();
   } catch (err) {
@@ -360,7 +407,6 @@ const handleSubmit = async () => {
 };
 
 const exportData = () => {
-  // Implement export functionality
   console.log("Exporting departments data...");
 };
 
@@ -368,7 +414,6 @@ const formatDate = (dateString: string) => {
   return new Date(dateString).toLocaleDateString("ar-EG");
 };
 
-// Lifecycle
 onMounted(() => {
   fetchDepartments();
 });

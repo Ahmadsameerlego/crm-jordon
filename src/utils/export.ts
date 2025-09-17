@@ -22,7 +22,7 @@ export const exportToXLSX = (data: any[], filename: string) => {
 };
 
 export const formatCurrency = (amount: number, currency = "SAR") => {
-  return new Intl.NumberFormat("ar-SA", {
+  return new Intl.NumberFormat("ar-JD", {
     style: "currency",
     currency,
   }).format(amount);

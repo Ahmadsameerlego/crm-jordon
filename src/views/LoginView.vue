@@ -65,6 +65,25 @@
             </p>
           </div>
 
+          <!-- User Type Field -->
+          <div>
+            <label
+              for="user_type"
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            >
+              {{ $t("auth.user_type") }}
+            </label>
+            <select
+              id="user_type"
+              v-model="formData.user_type"
+              class="input-field"
+              required
+            >
+              <option value="admin">Admin</option>
+              <option value="employee">Employee</option>
+            </select>
+          </div>
+
           <!-- Submit Button -->
           <button
             type="submit"
@@ -97,18 +116,18 @@
 </template>
 
 <script setup lang="ts">
-import { reactive } from "vue";
+import { ref } from "vue";
 import { useRouter } from "vue-router";
-import { useAuthStore } from "@/stores/auth";
+import axios from "axios";
 import { useForm } from "@/composables/useForm";
 
 const router = useRouter();
-const authStore = useAuthStore();
 
 const { formData, errors, isSubmitting, validateForm } = useForm(
   {
     email: "",
     password: "",
+    user_type: "admin" as "admin" | "employee", // Default to admin
   },
   {
     email: {
@@ -119,8 +138,31 @@ const { formData, errors, isSubmitting, validateForm } = useForm(
       required: true,
       minLength: 6,
     },
+    user_type: {
+      required: true,
+    },
   }
 );
+
+// 🌐 API base URL
+const API_BASE_URL = "https://crm.be-kite.com/backend"; // عدلها حسب السيرفر
+
+// 🔑 Login API call
+const loginApi = async (user_type: string, email: string, password: string) => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/api/login`, {
+      user_type,
+      email,
+      password,
+    });
+    return response.data;
+  } catch (error: any) {
+    if (error.response) {
+      return error.response.data;
+    }
+    throw error;
+  }
+};
 
 const handleLogin = async () => {
   if (!validateForm()) return;
@@ -128,12 +170,30 @@ const handleLogin = async () => {
   isSubmitting.value = true;
 
   try {
-    const result = await authStore.login(formData.email, formData.password);
+    const result = await loginApi(
+      formData.user_type,
+      formData.email,
+      formData.password
+    );
 
-    if (result.success) {
-      router.push("/admin");
+    console.log(result);
+
+    if (result.key === 1) {
+      // ✅ خزن بيانات الادمن في localStorage
+      localStorage.setItem("token", result.data.api_token);
+      localStorage.setItem("user", JSON.stringify(result.data));
+
+      // ✅ ريـدايركت حسب نوع المستخدم
+      const redirectPath =
+        formData.user_type === "admin" ? "/admin" : "/employee/dashboard";
+      
+        router.push(redirectPath);
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
     } else {
-      errors.email = result.error || "Login failed";
+      errors.email =
+        typeof result.error === "string" ? result.error : "Login failed";
     }
   } catch (error) {
     errors.email = "An error occurred during login";

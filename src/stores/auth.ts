@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
 import type { User } from "@/types";
+import authService from "@/services/authService";
 
 export const useAuthStore = defineStore("auth", () => {
   const user = ref<User | null>(null);
@@ -10,30 +11,25 @@ export const useAuthStore = defineStore("auth", () => {
   const isAuthenticated = computed(() => !!token.value && !!user.value);
   const isAdmin = computed(() => user.value?.role === "admin");
 
-  const login = async (email: string, password: string) => {
+  const login = async (userType: "admin" | "employee", email: string, password: string) => {
     isLoading.value = true;
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const response = await authService.login(userType, email, password);
 
-      // Mock user data
-      const mockUser: User = {
-        id: "1",
-        email,
-        name: "Admin User",
-        role: "admin",
-        createdAt: new Date().toISOString(),
+      user.value = {
+        id: response.user.id,
+        email: response.user.email,
+        name: response.user.name,
+        role: userType,
+        createdAt: response.user.createdAt,
       };
 
-      const mockToken = "mock-jwt-token";
-
-      user.value = mockUser;
-      token.value = mockToken;
-      localStorage.setItem("token", mockToken);
+      token.value = response.token;
+      localStorage.setItem("token", response.token);
 
       return { success: true };
     } catch (error) {
-      return { success: false, error: "Invalid credentials" };
+      return { success: false, error };
     } finally {
       isLoading.value = false;
     }

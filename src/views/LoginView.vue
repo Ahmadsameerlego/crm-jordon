@@ -15,7 +15,7 @@
       </div>
 
       <!-- Login Form -->
-      <div class="card p-8 shadow-xl animate-slide-up">
+      <div dir="ltr" class="card p-8 shadow-xl animate-slide-up">
         <h2 class="text-2xl font-semibold text-center mb-6 text-gray-900 dark:text-white">
           {{ $t("auth.login") }}
         </h2>
@@ -25,7 +25,7 @@
           <div>
             <label
               for="email"
-              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 ltr"
             >
               {{ $t("auth.email") }}
             </label>
@@ -79,8 +79,8 @@
               class="input-field"
               required
             >
-              <option value="admin">Admin</option>
-              <option value="employee">Employee</option>
+              <option value="admin">{{ $t('auth.admin') }}</option>
+              <option value="employee">{{ $t('auth.employee') }}</option>
             </select>
           </div>
 

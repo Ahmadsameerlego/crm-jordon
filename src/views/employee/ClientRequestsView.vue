@@ -45,15 +45,15 @@
             <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
               <tr v-for="visit in visits" :key="visit.id">
                 <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                  {{ formatDateTime(visit.dateTime) }}
+                  {{ visit.date_time }}
                 </td>
                 <td class="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
-                  <span v-if="visit.report" class="text-green-600">✓ تم التقرير</span>
+                  <span v-if="visit.notes" class="text-green-600">✓ تم التقرير</span>
                   <span v-else class="text-red-600">✗ بدون تقرير</span>
                 </td>
                 <td class="px-4 py-3 whitespace-nowrap text-sm font-medium">
                   <button
-                    v-if="!visit.report"
+                    v-if="!visit.notes"
                     class="btn-secondary mr-2"
                     @click="openVisitReport(visit)"
                   >
@@ -96,12 +96,12 @@
             <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
               <tr v-for="followUp in followUps" :key="followUp.id">
                 <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                  <span :class="getFollowUpTypeClass(followUp.type)">
-                    {{ getFollowUpTypeText(followUp.type) }}
+                  <span :class="getFollowUpTypeClass(followUp.service_title_ar)">
+                    {{ getFollowUpTypeText(followUp.service_title_ar) }}
                   </span>
                 </td>
                 <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                  {{ formatDateTime(followUp.dateTime) }}
+                  {{ followUp.date_time }}
                 </td>
                 <td class="px-4 py-3 whitespace-nowrap text-sm font-medium">
                   <button class="btn-secondary mr-2" @click="viewFollowUp(followUp)">
@@ -141,10 +141,10 @@
             <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
               <tr v-for="req in requirements" :key="req.id">
                 <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                  {{ getServiceName(req.service) }}
+                  {{ req.service_title_ar }}
                 </td>
                 <td class="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">
-                  {{ req.description }}
+                  {{ req.notes }}
                 </td>
                 <td class="px-4 py-3 whitespace-nowrap text-sm font-medium">
                   <button class="btn-secondary mr-2" @click="editReq(req)">
@@ -163,7 +163,7 @@
 
     <!-- Add Visit Modal -->
     <div v-if="showVisit" class="modal-overlay">
-      <div class="modal-content p-4">
+      <div class="modal-content p-4" style="max-width:400px">
         <h3 class="text-lg font-semibold mb-4">إضافة زيارة</h3>
         <form @submit.prevent="addVisit()">
           <input
@@ -182,7 +182,7 @@
 
     <!-- Visit Report Modal -->
     <div v-if="showVisitReport" class="modal-overlay">
-      <div class="modal-content p-4 max-w-2xl">
+      <div class="modal-content p-4 max-w-2xl" style="max-width: 500px;">
         <h3 class="text-lg font-semibold mb-4">
           {{ editingVisitReport ? "تعديل تقرير الزيارة" : "إضافة تقرير الزيارة" }}
         </h3>
@@ -205,7 +205,7 @@
 
     <!-- Add Follow-up Modal -->
     <div v-if="showFollowUp" class="modal-overlay">
-      <div class="modal-content p-4">
+      <div class="modal-content p-4" style="max-width:400px">
         <h3 class="text-lg font-semibold mb-4">إضافة متابعة</h3>
         <form @submit.prevent="addFollowUp()">
           <select v-model="followUpForm.type" class="input-field mb-2" required>
@@ -236,12 +236,12 @@
 
     <!-- Add/Edit Requirement Modal -->
     <div v-if="showReq" class="modal-overlay">
-      <div class="modal-content p-4">
+      <div class="modal-content p-4" style="max-width:400px">
         <h3 class="text-lg font-semibold mb-4">{{ editingReq ? "تعديل متطلب" : "إضافة متطلب" }}</h3>
         <form @submit.prevent="editingReq ? updateReq() : addRequirement()">
           <select v-model="reqForm.service" class="input-field mb-2" required>
             <option value="" disabled>اختر الخدمة</option>
-            <option v-for="s in services" :key="s.id" :value="s.id">{{ s.name }}</option>
+            <option v-for="s in services" :key="s.id" :value="s.label">{{ s.label }}</option>
           </select>
           <textarea
             v-model="reqForm.description"
@@ -259,15 +259,14 @@
 
     <!-- View Follow-up Details Modal -->
     <div v-if="showFollowUpDetails" class="modal-overlay">
-      <div class="modal-content p-4 max-w-lg">
+      <div class="modal-content p-4 max-w-lg" style="max-width: 500px;">
         <h3 class="text-lg font-semibold mb-4">تفاصيل المتابعة</h3>
         <div class="mb-4">
-          <strong>النوع:</strong> {{ getFollowUpTypeText(selectedFollowUp?.type || "") }}<br />
-          <strong>التاريخ والوقت:</strong> {{ formatDateTime(selectedFollowUp?.dateTime || "")
-          }}<br />
+          <strong>النوع:</strong> {{ getFollowUpTypeText(selectedFollowUp?.service_title_ar || "") }}<br />
+          <strong>التاريخ والوقت:</strong> {{ selectedFollowUp?.date_time || ""}}<br />
           <strong>التفاصيل:</strong><br />
           <p class="mt-2 p-3 bg-gray-100 dark:bg-gray-700 rounded">
-            {{ selectedFollowUp?.description }}
+            {{ selectedFollowUp?.notes }}
           </p>
         </div>
         <div class="flex justify-end">
@@ -279,14 +278,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed , onMounted} from "vue";
 import { useRoute } from "vue-router";
 import { useEmployeeVisitsStore } from "@/stores/employeeVisits";
 import { useEmployeeRequirementsStore } from "@/stores/employeeRequirements";
 import { useServicesStore } from "@/stores/services";
 import EmployeeLayout from "@/components/Employee/EmployeeLayout.vue";
 import type { Visit, FollowUp } from "@/types/visit";
-
+import axios from "axios";
 const route = useRoute();
 const clientId = route.params.clientId as string;
 const visitsStore = useEmployeeVisitsStore();
@@ -307,11 +306,48 @@ const visitForm = ref({ dateTime: "" });
 const followUpForm = ref({ type: "", dateTime: "", description: "" });
 const reqForm = ref({ service: "", description: "" });
 const visitReportForm = ref({ report: "" });
-
-const visits = computed(() => visitsStore.getVisitsByClient(clientId));
-const followUps = computed(() => visitsStore.getFollowUpsByClient(clientId));
-const requirements = computed(() => reqsStore.getRequirementsByClient(clientId));
-const services = computed(() => servicesStore.services);
+const services = ref([
+  {
+    id : 1 ,
+    label : 'تصميم موقع إلكتروني تعريفي'
+  },
+  {
+    id : 2 ,
+    label : 'تصميم موقع تجاره الكتروني'
+  },
+  {
+    id : 3,
+    label : 'تصميم تطبيق هاتف'
+  },
+  // {
+  //   id : 4 ,
+  //   label : 'نظام erp'
+  // },
+  {
+    id : 5 ,
+    label : 'نظام erp'
+  },
+  {
+    id : 6 ,
+    label : 'خدمه استضافه'
+  },
+  {
+    id : 7 ,
+    label : 'اداره مواقع التواصل الاجتماعي والحملات الاعلانيه'
+  },
+  {
+    id : 8 ,
+    label : 'خدمه التصوير الفوتوغرافي والفيديو'
+  },
+  {
+    id : 9,
+    label : 'خدمه تصميم الهويه البصريه'
+  },
+  {
+    id : 10,
+    label : 'خدمه تصميم فيديوهات الموشن والمونتاج'
+  },
+])
 
 function formatDateTime(dateTime: string) {
   return new Date(dateTime).toLocaleString("ar-SA");
@@ -335,8 +371,17 @@ function getFollowUpTypeClass(type: string) {
   return classes[type as keyof typeof classes] || "";
 }
 
-function addVisit() {
-  visitsStore.addVisit({ ...visitForm.value, clientId });
+async function addVisit() {
+  const fd = new FormData();
+  fd.append('date', visitForm.value.dateTime)
+  fd.append('type', 'visit')
+  fd.append('provider_id', route.params.clientId)
+  await axios.post('https://crm.be-kite.com/backend/api/store-order', fd , {
+    headers:{
+      Authorization : localStorage.getItem('token')
+    }
+  })
+  fetchOrders();
   closeVisitModal();
 }
 
@@ -344,8 +389,9 @@ function closeVisitModal() {
   showVisit.value = false;
   visitForm.value.dateTime = "";
 }
-
+const order_id = ref('')
 function openVisitReport(visit: Visit) {
+  order_id.value = visit.id ;
   editingVisitReport.value = visit;
   visitReportForm.value.report = visit.report || "";
   showVisitReport.value = true;
@@ -353,15 +399,23 @@ function openVisitReport(visit: Visit) {
 
 function viewVisitReport(visit: Visit) {
   editingVisitReport.value = visit;
-  visitReportForm.value.report = visit.report || "";
+  visitReportForm.value.report = visit.notes || "";
   showVisitReport.value = true;
 }
 
-function saveVisitReport() {
-  if (editingVisitReport.value) {
-    visitsStore.updateVisitReport(editingVisitReport.value.id, visitReportForm.value.report);
-    closeVisitReportModal();
-  }
+async function saveVisitReport() {
+const fd = new FormData();
+  fd.append('notes', visitReportForm.value.report)
+  fd.append('order_id', order_id.value)
+  fd.append('type', 'visit')
+  fd.append('provider_id', route.params.clientId)
+  await axios.post('https://crm.be-kite.com/backend/api/update-order', fd , {
+    headers:{
+      Authorization : localStorage.getItem('token')
+    }
+  })
+  fetchOrders();
+  closeVisitReportModal()
 }
 
 function closeVisitReportModal() {
@@ -370,12 +424,20 @@ function closeVisitReportModal() {
   visitReportForm.value.report = "";
 }
 
-function addFollowUp() {
-  visitsStore.addFollowUp({
-    ...followUpForm.value,
-    clientId,
-    type: followUpForm.value.type as "external" | "internal" | "phone",
-  });
+async function addFollowUp() {
+
+  const fd = new FormData();
+  fd.append('service_title_ar', followUpForm.value.type)
+  fd.append('notes', followUpForm.value.description)
+  fd.append('date', followUpForm.value.dateTime)
+  fd.append('type', 'follow')
+  fd.append('provider_id', route.params.clientId)
+  await axios.post('https://crm.be-kite.com/backend/api/store-order', fd , {
+    headers:{
+      Authorization : localStorage.getItem('token')
+    }
+  })
+  fetchOrders();
   closeFollowUpModal();
 }
 
@@ -389,27 +451,63 @@ function viewFollowUp(followUp: FollowUp) {
   showFollowUpDetails.value = true;
 }
 
-function addRequirement() {
-  reqsStore.addRequirement({ ...reqForm.value, clientId });
+async function addRequirement() {
+  // reqsStore.addRequirement({ ...reqForm.value, clientId });
+  const fd = new FormData();
+  fd.append('service_title_ar', reqForm.value.service)
+  fd.append('notes', reqForm.value.description)
+  // fd.append('order_id', order_id.value)
+  fd.append('type', 'require')
+  fd.append('provider_id', route.params.clientId)
+  await axios.post('https://crm.be-kite.com/backend/api/store-order', fd , {
+    headers:{
+      Authorization : localStorage.getItem('token')
+    }
+  })
+  fetchOrders();
+  
   closeReqModal();
 }
-
+const req_id = ref('') ;
 function editReq(req: any) {
   editingReq.value = req;
-  reqForm.value.service = req.service;
-  reqForm.value.description = req.description;
+  reqForm.value.service = req.service_title_ar;
+  reqForm.value.description = req.notes;
+  req_id.value = req.id ;
   showReq.value = true;
 }
 
-function updateReq() {
+async function updateReq() {
   if (editingReq.value) {
-    reqsStore.updateRequirement({ ...editingReq.value, ...reqForm.value });
+    // reqsStore.updateRequirement({ ...editingReq.value, ...reqForm.value });
+     // reqsStore.addRequirement({ ...reqForm.value, clientId });
+  const fd = new FormData();
+  fd.append('service_title_ar', reqForm.value.service)
+  fd.append('notes', reqForm.value.description)
+  fd.append('order_id', req_id.value)
+  fd.append('type', 'require')
+  fd.append('provider_id', route.params.clientId)
+  await axios.post('https://crm.be-kite.com/backend/api/update-order', fd , {
+    headers:{
+      Authorization : localStorage.getItem('token')
+    }
+  })
+  fetchOrders();
     closeReqModal();
   }
 }
 
-function deleteReq(req: any) {
-  reqsStore.deleteRequirement(req.id);
+async function deleteReq(req: any) {
+   const fd = new FormData();
+  fd.append('order_id', req.id)
+  fd.append('provider_id', route.params.clientId)
+  await axios.post('https://crm.be-kite.com/backend/api/delete-order', fd , {
+    headers:{
+      Authorization : localStorage.getItem('token')
+    }
+  })
+  fetchOrders();
+  // reqsStore.deleteRequirement(req.id);
 }
 
 function closeReqModal() {
@@ -422,6 +520,40 @@ function closeReqModal() {
 function getServiceName(id: string) {
   return services.value.find((s) => s.id === id)?.name || "";
 }
+
+const allOrders = ref([])
+const fetchOrders = async () => {
+  try {
+    const { data } = await axios.post(
+      "https://crm.be-kite.com/backend/api/show-all-orders" ,{},
+      {
+        headers:{
+          Authorization : localStorage.getItem('token')
+        }
+      }
+    );
+    if (data && data.data) {
+      allOrders.value = data.data;
+    }
+  } catch (err) {
+    console.error(err)
+  } 
+};
+
+// computed filters
+const visits = computed(() =>
+  allOrders.value.filter((o) => o.type === "visit")
+);
+const followUps = computed(() =>
+  allOrders.value.filter((o) => o.type === "follow")
+);
+const requirements = computed(() =>
+  allOrders.value.filter((o) => o.type === "require")
+);
+
+onMounted(fetchOrders);
+
+
 </script>
 
 <style scoped>

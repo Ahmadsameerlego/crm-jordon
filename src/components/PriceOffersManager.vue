@@ -3,175 +3,123 @@
     <!-- Header -->
     <div class="flex justify-between items-center">
       <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-        عروض الأسعار - {{ clientName }}
+        <!-- عروض الأسعار - {{ clientName }} -->
       </h3>
-      <button @click="showAddModal = true" class="btn-primary">
+      <button @click="openAddModal" class="btn-primary">
         <i class="pi pi-plus mr-2"></i>
         إضافة عرض سعر جديد
       </button>
     </div>
 
-    <!-- Loading State -->
-    <div v-if="isLoading" class="flex justify-center items-center h-32">
-      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
-    </div>
-
     <!-- Error State -->
-    <div v-else-if="error" class="card p-4">
+    <div v-if="error" class="card p-4">
       <div class="text-center text-red-600 dark:text-red-400">
         <i class="pi pi-exclamation-triangle text-xl mb-2"></i>
         <p>{{ error }}</p>
-        <button @click="fetchPriceOffers" class="btn-primary mt-2">إعادة المحاولة</button>
       </div>
     </div>
 
     <!-- Price Offers List -->
-    <div v-else class="space-y-4">
-      <div
-        v-for="offer in priceOffers"
-        :key="offer.id"
-        class="card p-6 hover:shadow-lg transition-shadow"
-      >
+    <div class="space-y-4">
+      <div v-for="(offer, index) in offers" :key="offer.id" class="relative card p-6 hover:shadow-lg transition-shadow">
+        <span class="price_offer_number absolute top-2 right-2">{{ index + 1 }}</span>
         <div class="flex justify-between items-start mb-4">
           <div>
-            <h4 class="text-lg font-semibold text-gray-900 dark:text-white">
-              {{ offer.title }}
-            </h4>
-            <p class="text-gray-600 dark:text-gray-400 mt-1">
-              {{ offer.description }}
-            </p>
+            <h4 class="text-lg font-bold text-yellow-100 dark:text-yellow-500">{{ offer.service_title_ar }}</h4>
+            <p class="text-gray-600 dark:text-gray-400 mt-1 whitespace-pre-wrap">{{ offer.notes }}</p>
           </div>
           <div class="flex items-center space-x-2 space-x-reverse">
-            <span
-              class="inline-flex px-2 py-1 text-xs font-semibold rounded-full"
-              :class="getStatusClass(offer.status)"
-            >
-              {{ getStatusText(offer.status) }}
+            <span class="inline-flex px-2 py-1 text-md font-semibold rounded-full"
+              :class="getStatusClass(offer.status)">
+              {{ offer.status_f }}
             </span>
             <div class="flex items-center space-x-1 space-x-reverse">
-              <button
-                @click="editOffer(offer)"
+              <button @click="openEditModal(offer)"
                 class="text-primary-600 dark:text-primary-400 hover:text-primary-900 dark:hover:text-primary-300"
-                title="تعديل"
-              >
+                title="تعديل">
                 <i class="pi pi-pencil"></i>
               </button>
-              <button
-                @click="deleteOffer(offer.id)"
-                class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300"
-                title="حذف"
-              >
+              <button @click="deleteOffer(offer.id)"
+                class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300" title="حذف">
                 <i class="pi pi-trash"></i>
               </button>
             </div>
           </div>
         </div>
-
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
           <div>
             <span class="text-sm font-medium text-gray-500 dark:text-gray-400">المبلغ:</span>
             <p class="text-lg font-semibold text-gray-900 dark:text-white">
-              {{ offer.amount }} {{ offer.currency }}
+              {{ offer.sub_total }} {{ offer.payment_method }}
             </p>
           </div>
           <div>
-            <span class="text-sm font-medium text-gray-500 dark:text-gray-400">التاريخ:</span>
-            <p class="text-gray-900 dark:text-white">{{ formatDate(offer.date) }}</p>
+            <span class="text-sm font-medium text-gray-500 dark:text-gray-400">تاريخ الطلب:</span>
+            <p class="text-gray-900 dark:text-white">{{ offer.order_date }}</p>
           </div>
           <div>
-            <span class="text-sm font-medium text-gray-500 dark:text-gray-400">آخر تحديث:</span>
-            <p class="text-gray-900 dark:text-white">{{ formatDate(offer.updatedAt) }}</p>
+            <span class="text-sm font-medium text-gray-500 dark:text-gray-400">الوقت:</span>
+            <p class="text-gray-900 dark:text-white">{{ offer.order_time }}</p>
           </div>
         </div>
 
-        <!-- Files Section -->
         <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
-          <h5 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">الملفات المرفقة:</h5>
-          
-          <!-- Admin File -->
+          <h5 class="text-lg font-bold text-yellow-100 dark:text-yellow-500 mb-2">الملفات المرفقة:</h5>
+
+          <!-- Original Offer File -->
           <div class="flex items-center justify-between mb-2">
             <div class="flex items-center">
               <i class="pi pi-file-pdf text-red-500 mr-2"></i>
-              <span class="text-sm text-gray-600 dark:text-gray-400">
-                ملف العرض الأصلي:
-              </span>
+              <span class="text-sm text-gray-600 dark:text-gray-400">ملف العرض الأصلي:</span>
             </div>
-            <div class="flex items-center space-x-2 space-x-reverse">
-              <span v-if="offer.adminFileName" class="text-sm text-gray-900 dark:text-white">
-                {{ offer.adminFileName }}
-              </span>
-              <button
-                v-if="offer.adminFile"
-                @click="downloadFile(offer.adminFile, offer.adminFileName)"
+            <div class="flex items-center space-x-2 space-x-reverse" v-if="offer.image">
+              <button @click="downloadFile(offer.image)"
                 class="text-primary-600 dark:text-primary-400 hover:text-primary-900 dark:hover:text-primary-300"
-                title="تحميل"
-              >
+                title="تحميل">
                 <i class="pi pi-download"></i>
               </button>
-              <button
-                v-if="offer.adminFile"
-                @click="previewFile(offer.adminFile)"
-                class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300"
-                title="عرض"
-              >
+              <button @click="previewFile(offer.image)"
+                class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300" title="عرض">
                 <i class="pi pi-eye"></i>
               </button>
             </div>
+            <span v-else class="text-sm text-gray-400">لا يوجد ملف</span>
           </div>
 
-          <!-- Employee File (Signed) -->
-          <div v-if="offer.employeeFile || isEmployee" class="flex items-center justify-between">
+          <!-- Contract File -->
+          <div class="flex items-center justify-between">
             <div class="flex items-center">
               <i class="pi pi-file-pdf text-green-500 mr-2"></i>
-              <span class="text-sm text-gray-600 dark:text-gray-400">
-                ملف العقد الممضي:
-              </span>
+              <span class="text-sm text-gray-600 dark:text-gray-400">ملف العقد:</span>
             </div>
-            <div class="flex items-center space-x-2 space-x-reverse">
-              <span v-if="offer.employeeFileName" class="text-sm text-gray-900 dark:text-white">
-                {{ offer.employeeFileName }}
-              </span>
-              <button
-                v-if="offer.employeeFile"
-                @click="downloadFile(offer.employeeFile, offer.employeeFileName)"
+            <div class="flex items-center space-x-2 space-x-reverse" v-if="offer.contract">
+              <button @click="downloadFile(offer.contract)"
                 class="text-primary-600 dark:text-primary-400 hover:text-primary-900 dark:hover:text-primary-300"
-                title="تحميل"
-              >
+                title="تحميل">
                 <i class="pi pi-download"></i>
               </button>
-              <button
-                v-if="offer.employeeFile"
-                @click="previewFile(offer.employeeFile)"
-                class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300"
-                title="عرض"
-              >
+              <button @click="previewFile(offer.contract)"
+                class="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300" title="عرض">
                 <i class="pi pi-eye"></i>
               </button>
-              <button
-                v-if="isEmployee && !offer.employeeFile"
-                @click="uploadSignedFile(offer)"
-                class="text-green-600 dark:text-green-400 hover:text-green-900 dark:hover:text-green-300"
-                title="رفع ملف ممضي"
-              >
-                <i class="pi pi-upload"></i>
-              </button>
             </div>
+            <span v-else class="text-sm text-gray-400">لا يوجد ملف</span>
           </div>
         </div>
       </div>
 
       <!-- Empty State -->
-      <div v-if="priceOffers.length === 0" class="text-center py-12">
+      <div v-if="offers.length === 0" class="text-center py-12">
         <i class="pi pi-file text-4xl text-gray-400 mb-4"></i>
-        <p class="text-gray-500 dark:text-gray-400">لا توجد عروض أسعار</p>
+        <p class="text-gray-500 dark:text-gray-400">لا توجد عروض أسعار لهذا العميل</p>
       </div>
     </div>
 
     <!-- Add/Edit Modal -->
-    <div v-if="showAddModal || showEditModal" class="modal-overlay">
-      <div class="modal-content p-6 max-w-2xl">
+    <div v-if="showModal" class="modal-overlay">
+      <div class="modal-content p-6 max-w-2xl w-full mx-4">
         <h3 class="text-lg font-semibold mb-4">
-          {{ showEditModal ? "تعديل عرض السعر" : "إضافة عرض سعر جديد" }}
+          {{ isEditing ? "تعديل عرض السعر" : "إضافة عرض سعر جديد" }}
         </h3>
 
         <form @submit.prevent="handleSubmit" class="space-y-4">
@@ -179,26 +127,18 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               العنوان *
             </label>
-            <input
-              v-model="formData.title"
-              type="text"
-              required
+            <input v-model="formData.service_title_ar" type="text" required
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-800 dark:text-gray-100"
-              placeholder="عنوان عرض السعر"
-            />
+              placeholder="عنوان عرض السعر" />
           </div>
 
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               الوصف *
             </label>
-            <textarea
-              v-model="formData.description"
-              rows="3"
-              required
+            <textarea v-model="formData.notes" rows="3" required
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-800 dark:text-gray-100"
-              placeholder="وصف تفصيلي للخدمة"
-            ></textarea>
+              placeholder="وصف تفصيلي للخدمة"></textarea>
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -206,91 +146,42 @@
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 المبلغ *
               </label>
-              <input
-                v-model.number="formData.amount"
-                type="number"
-                required
-                min="0"
-                step="0.01"
+              <input v-model.number="formData.sub_total" type="number" required min="0" step="0.01"
                 class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-800 dark:text-gray-100"
-                placeholder="0.00"
-              />
+                placeholder="0.00" />
             </div>
 
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 العملة *
               </label>
-              <select
-                v-model="formData.currency"
-                required
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-800 dark:text-gray-100"
-              >
-                <option value="">اختر العملة</option>
+              <select v-model="formData.payment_method" required
+                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-800 dark:text-gray-100">
                 <option value="SAR">ريال سعودي (SAR)</option>
                 <option value="USD">دولار أمريكي (USD)</option>
-                <option value="EUR">يورو (EUR)</option>
+                <option value="JOD">دينار أردني (JOD)</option>
               </select>
             </div>
           </div>
 
-          <div v-if="!showEditModal">
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              ملف PDF (اختياري)
-            </label>
-            <input
-              ref="adminFileInput"
-              type="file"
-              accept=".pdf"
-              @change="handleAdminFileChange"
-              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-800 dark:text-gray-100"
-            />
-            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-              يمكنك رفع ملف PDF يحتوي على تفاصيل العرض
-            </p>
-          </div>
-
-          <div class="flex justify-end space-x-3 space-x-reverse">
-            <button type="button" @click="closeModal" class="btn-secondary">إلغاء</button>
-            <button type="submit" class="btn-primary" :disabled="isSubmitting">
-              <span v-if="isSubmitting" class="animate-spin mr-2">⏳</span>
-              {{ showEditModal ? "تحديث" : "إضافة" }}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-
-    <!-- Upload Signed File Modal -->
-    <div v-if="showUploadModal" class="modal-overlay">
-      <div class="modal-content p-6 max-w-md">
-        <h3 class="text-lg font-semibold mb-4">رفع ملف العقد الممضي</h3>
-
-        <form @submit.prevent="handleUploadSignedFile" class="space-y-4">
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              ملف PDF الممضي *
+              ملف العرض (PDF)
             </label>
-            <input
-              ref="employeeFileInput"
-              type="file"
-              accept=".pdf"
-              @change="handleEmployeeFileChange"
-              required
-              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-800 dark:text-gray-100"
-            />
-            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-              ارفع ملف PDF للعقد الممضي من العميل
+            <input ref="fileInput" type="file" accept=".pdf,.png,.jpg,.jpeg" @change="handleFileChange"
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-800 dark:text-gray-100" />
+            <p v-if="isEditing" class="mt-1 text-xs text-yellow-600 dark:text-yellow-400">
+              اترك الحقل فارغاً إذا كنت لا تريد تغيير الملف الحالي
             </p>
           </div>
 
-          <div class="flex justify-end space-x-3 space-x-reverse">
-            <button type="button" @click="showUploadModal = false" class="btn-secondary">
+          <div class="flex justify-end space-x-3 space-x-reverse pt-4">
+            <button type="button" @click="closeModal" class="btn-secondary">
               إلغاء
             </button>
             <button type="submit" class="btn-primary" :disabled="isSubmitting">
               <span v-if="isSubmitting" class="animate-spin mr-2">⏳</span>
-              رفع الملف
+              {{ isEditing ? "تحديث" : "إضافة" }}
             </button>
           </div>
         </form>
@@ -298,21 +189,18 @@
     </div>
 
     <!-- File Preview Modal -->
-    <div v-if="showPreviewModal" class="modal-overlay">
-      <div class="modal-content p-4 max-w-4xl h-3/4">
+    <div v-if="showPreviewModal" class="modal-overlay" @click="showPreviewModal = false">
+      <div class="modal-content p-4 max-w-4xl h-5/6 w-full mx-4" @click.stop>
         <div class="flex justify-between items-center mb-4">
           <h3 class="text-lg font-semibold">معاينة الملف</h3>
           <button @click="showPreviewModal = false" class="text-gray-500 hover:text-gray-700">
             <i class="pi pi-times text-xl"></i>
           </button>
         </div>
-        <div class="h-full">
-          <iframe
-            v-if="previewUrl"
-            :src="previewUrl"
-            class="w-full h-full border-0"
-            title="File Preview"
-          ></iframe>
+        <div class="h-[calc(100%-4rem)]">
+          <iframe v-if="previewUrl?.toLowerCase().endsWith('.pdf')" :src="previewUrl"
+            class="w-full h-full border-0 rounded" title="File Preview"></iframe>
+          <img v-else :src="previewUrl" class="w-full h-full object-contain rounded" alt="File Preview" />
         </div>
       </div>
     </div>
@@ -320,178 +208,180 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
-import { usePriceOffersStore } from "@/stores/priceOffers";
-import type {
-  PriceOffer,
-  CreatePriceOfferRequest,
-  UpdatePriceOfferRequest,
-} from "@/types/priceOffer";
+import { ref } from "vue";
+import axios from 'axios';
+
+interface PriceOffer {
+  id: number;
+  service_title_ar: string;
+  notes: string;
+  sub_total: string;
+  payment_method: string;
+  status: string;
+  status_f: string;
+  order_date: string;
+  order_time: string;
+  image: string;
+  contract: string;
+  type: string;
+}
 
 const props = defineProps<{
-  clientId: string;
+  clientId: number;
   clientName: string;
   isEmployee?: boolean;
+  offers: PriceOffer[]
 }>();
 
-const priceOffersStore = usePriceOffersStore();
+const emit = defineEmits(['offer-added']);
 
 // Reactive data
-const showAddModal = ref(false);
-const showEditModal = ref(false);
-const showUploadModal = ref(false);
+const showModal = ref(false);
 const showPreviewModal = ref(false);
 const isSubmitting = ref(false);
-const editingOffer = ref<PriceOffer | null>(null);
-const uploadingOffer = ref<PriceOffer | null>(null);
+const isEditing = ref(false);
 const previewUrl = ref("");
+const error = ref("");
+const editingOfferId = ref<number | null>(null);
 
-const formData = ref<CreatePriceOfferRequest>({
-  clientId: props.clientId,
-  title: "",
-  description: "",
-  amount: 0,
-  currency: "SAR",
+const formData = ref({
+  service_title_ar: "",
+  notes: "",
+  sub_total: 0,
+  payment_method: "SAR",
+  photo: null as File | null
 });
 
-const adminFileInput = ref<HTMLInputElement>();
-const employeeFileInput = ref<HTMLInputElement>();
-
-// Computed
-const isLoading = computed(() => priceOffersStore.isLoading);
-const error = computed(() => priceOffersStore.error);
-const priceOffers = computed(() => priceOffersStore.getPriceOffersByClient(props.clientId));
+const fileInput = ref<HTMLInputElement>();
 
 // Methods
-const fetchPriceOffers = async () => {
-  await priceOffersStore.fetchPriceOffers();
-};
-
 const getStatusClass = (status: string) => {
   const classes = {
-    pending: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300",
+    new: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300",
     accepted: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300",
     rejected: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300",
-    expired: "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300",
+    completed: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300"
   };
-  return classes[status as keyof typeof classes] || classes.pending;
-};
-
-const getStatusText = (status: string) => {
-  const texts = {
-    pending: "في الانتظار",
-    accepted: "مقبول",
-    rejected: "مرفوض",
-    expired: "منتهي الصلاحية",
-  };
-  return texts[status as keyof typeof texts] || status;
-};
-
-const formatDate = (dateString: string) => {
-  return new Date(dateString).toLocaleDateString("ar-EG");
+  return classes[status as keyof typeof classes] || classes.new;
 };
 
 const resetForm = () => {
   formData.value = {
-    clientId: props.clientId,
-    title: "",
-    description: "",
-    amount: 0,
-    currency: "SAR",
+    service_title_ar: "",
+    notes: "",
+    sub_total: 0,
+    payment_method: "SAR",
+    photo: null
   };
-  editingOffer.value = null;
+  editingOfferId.value = null;
+  if (fileInput.value) fileInput.value.value = '';
+};
+
+const openAddModal = () => {
+  isEditing.value = false;
+  resetForm();
+  showModal.value = true;
+};
+
+const openEditModal = (offer: PriceOffer) => {
+  isEditing.value = true;
+  editingOfferId.value = offer.id;
+  formData.value.service_title_ar = offer.service_title_ar;
+  formData.value.notes = offer.notes;
+  formData.value.sub_total = parseFloat(offer.sub_total);
+  formData.value.payment_method = offer.payment_method;
+  formData.value.photo = null;
+  showModal.value = true;
 };
 
 const closeModal = () => {
-  showAddModal.value = false;
-  showEditModal.value = false;
+  showModal.value = false;
   resetForm();
 };
 
-const editOffer = (offer: PriceOffer) => {
-  editingOffer.value = offer;
-  formData.value = {
-    clientId: offer.clientId,
-    title: offer.title,
-    description: offer.description,
-    amount: offer.amount,
-    currency: offer.currency,
-  };
-  showEditModal.value = true;
-};
-
-const deleteOffer = async (id: string) => {
-  if (confirm("هل أنت متأكد من حذف هذا العرض؟")) {
-    try {
-      await priceOffersStore.deletePriceOffer(id);
-    } catch (err) {
-      console.error("Error deleting offer:", err);
-    }
-  }
-};
-
-const handleAdminFileChange = (event: Event) => {
+const handleFileChange = (event: Event) => {
   const target = event.target as HTMLInputElement;
   if (target.files && target.files[0]) {
-    formData.value.adminFile = target.files[0];
-  }
-};
-
-const handleEmployeeFileChange = (event: Event) => {
-  const target = event.target as HTMLInputElement;
-  if (target.files && target.files[0]) {
-    // Store the file for upload
-    (formData.value as any).employeeFile = target.files[0];
+    formData.value.photo = target.files[0];
   }
 };
 
 const handleSubmit = async () => {
   isSubmitting.value = true;
+  error.value = "";
+
+  const submitFormData = new FormData();
+  submitFormData.append('lang', 'ar');
+  submitFormData.append('provider_id', props.clientId.toString());
+  submitFormData.append('type', 'offer');
+  submitFormData.append('service_title_ar', formData.value.service_title_ar);
+  submitFormData.append('notes', formData.value.notes);
+  submitFormData.append('sub_total', formData.value.sub_total.toString());
+  submitFormData.append('payment_method', formData.value.payment_method);
+
+  if (formData.value.photo) {
+    submitFormData.append('photo', formData.value.photo);
+  }
+
+  const endpoint = isEditing.value
+    ? "https://crm.be-kite.com/backend/api/update-order"
+    : "https://crm.be-kite.com/backend/api/store-order";
+
+  if (isEditing.value && editingOfferId.value) {
+    submitFormData.append('order_id', editingOfferId.value.toString());
+  }
+
   try {
-    if (showEditModal.value && editingOffer.value) {
-      await priceOffersStore.updatePriceOffer(
-        editingOffer.value.id,
-        formData.value as UpdatePriceOfferRequest
-      );
+    const { data } = await axios.post(endpoint, submitFormData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        'Authorization' : localStorage.getItem('token')
+      }
+    });
+
+    if (data && data.key === 1) {
+      emit('offer-added'); // Refetch parent data
+      closeModal();
     } else {
-      await priceOffersStore.createPriceOffer(formData.value);
+      error.value = data.msg || 'حدث خطأ أثناء حفظ عرض السعر';
     }
-    closeModal();
   } catch (err) {
     console.error("Error submitting offer:", err);
+    error.value = 'حدث خطأ في الاتصال بالخادم';
   } finally {
     isSubmitting.value = false;
   }
 };
 
-const uploadSignedFile = (offer: PriceOffer) => {
-  uploadingOffer.value = offer;
-  showUploadModal.value = true;
-};
+const deleteOffer = async (id: number) => {
+  if (!confirm("هل أنت متأكد من حذف هذا العرض؟")) return;
 
-const handleUploadSignedFile = async () => {
-  if (!uploadingOffer.value) return;
-
-  isSubmitting.value = true;
   try {
-    const updateData: UpdatePriceOfferRequest = {
-      employeeFile: (formData.value as any).employeeFile,
-    };
-    await priceOffersStore.updatePriceOffer(uploadingOffer.value.id, updateData);
-    showUploadModal.value = false;
-    uploadingOffer.value = null;
+    const { data } = await axios.post("https://crm.be-kite.com/backend/api/delete-order", {
+      order_id: id,
+      lang: 'ar'
+    }, {
+      headers: {
+        Authorization: localStorage.getItem('token')
+      }
+    });
+
+    if (data && data.key === 1) {
+      emit('offer-added');
+    } else {
+      alert(data.msg || 'فشل حذف العرض');
+    }
   } catch (err) {
-    console.error("Error uploading signed file:", err);
-  } finally {
-    isSubmitting.value = false;
+    console.error("Error deleting offer:", err);
+    alert('حدث خطأ أثناء الحذف');
   }
 };
 
-const downloadFile = (fileUrl: string, fileName?: string) => {
-  // Create a temporary link to download the file
+const downloadFile = (fileUrl: string) => {
   const link = document.createElement("a");
   link.href = fileUrl;
-  link.download = fileName || "file.pdf";
+  link.target = "_blank";
+  link.download = fileUrl.split('/').pop() || 'file';
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
@@ -501,11 +391,6 @@ const previewFile = (fileUrl: string) => {
   previewUrl.value = fileUrl;
   showPreviewModal.value = true;
 };
-
-// Lifecycle
-onMounted(() => {
-  fetchPriceOffers();
-});
 </script>
 
 <style scoped>
@@ -533,5 +418,21 @@ onMounted(() => {
 .dark .modal-content {
   background: #1f2937;
   color: white;
+}
+.price_offer_number {
+  position: absolute;
+    right: 50%;
+    top: -25px;
+    display: flex
+;
+    justify-content: center;
+    align-items: center;
+    font-size: 20px;
+    width: 50px;
+    height: 50px;
+    background: #154d9b;
+    color: #fff;
+    font-weight: 700;
+    border-radius: 50%;
 }
 </style>

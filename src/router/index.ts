@@ -47,6 +47,18 @@ const router = createRouter({
           component: () => import("@/views/employee/PriceOffersView.vue"),
           props: true,
         },
+        {
+          path: "quotations",
+          name: "ClientQuotations",
+          component: () => import("@/views/employee/QuotationsView.vue"),
+          props: true,
+        },
+        {
+          path: "notification",
+          name: "Notifications",
+          component: () => import("@/views/employee/NotificationsView.vue"),
+          props: true,
+        }
       ],
     },
     {
@@ -93,6 +105,18 @@ const router = createRouter({
       path: "/admin/deals",
       name: "AdminDeals",
       component: () => import("@/views/AdminDealsView.vue"),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/admin/notifications",
+      name: "Notifications",
+      component: () => import("@/views/notificationView.vue"),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/admin/quotations",
+      name: "Quotations",
+      component: () => import("@/views/AdminQuotations.vue"),
       meta: { requiresAuth: true },
     },
     {

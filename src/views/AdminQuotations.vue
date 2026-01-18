@@ -1,6 +1,6 @@
 <template>
   <AdminLayout>
-    <template #title>العملاء</template>
+    <template #title>الطلبات (عروض الأسعار )</template>
 
     <!-- Header Section -->
     <div class="flex justify-between items-center mb-6">
@@ -35,12 +35,7 @@
         </div>
       </div>
 
-      <div class="flex items-center space-x-4">
-        <button @click="handleAddClient" class="btn-primary">
-          <i class="pi pi-plus mr-2"></i>
-          إضافة عميل جديد
-        </button>
-      </div>
+      
     </div>
 
     <!-- Clients Table -->
@@ -53,98 +48,93 @@
                 اسم الموظف
               </th>
               <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                اسم الشركة
+                اسم المسئول
               </th>
               <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                رقم الجوال
+                اسم الشركة  
               </th>
               <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                الملاحظات
+                الخدمة المطلوبة
+              </th>
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                الملاحظات   
+              </th>
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                المبلغ   
+              </th>
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                الحالة     
+              </th>
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                تاريخ الطلب     
               </th>
               <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 عروض الأسعار
               </th>
-              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+              <!-- <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 إجراءات
-              </th>
+              </th> -->
             </tr>
           </thead>
           <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
             <tr v-for="client in filteredClients" :key="client.id">
               <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                {{ client.upload_by_name }}
+                {{ client.user_name }}
               </td>
-              <td  @click="openDescModal(client.first_name)" 
-                :title="client.first_name" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 max-w-[200px] overflow-hidden text-ellipsis cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                {{ client.first_name }}
+             
+              <td @click="openDescModal(client.provider_name)" :title="client.provider_name" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 max-w-[200px] overflow-hidden text-ellipsis cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                {{ client.provider_name }}
               </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                {{ client.phone_info }}
+               <td  @click="openDescModal(client.provider_first_name)" 
+                :title="client.provider_first_name" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 max-w-[200px] overflow-hidden text-ellipsis cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                {{ client.provider_first_name }}
+              </td>
+               <td  @click="openDescModal(client.service_title_ar)" 
+                :title="client.service_title_ar" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 max-w-[200px] overflow-hidden text-ellipsis cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                {{ client.service_title_ar }}
+              </td>
+
+
+              <td 
+                class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 max-w-[200px] overflow-hidden text-ellipsis cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                @click="openDescModal(client.notes)" 
+                :title="client.notes"
+              >
+                {{ client.notes }}
               </td>
               <td 
                 class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 max-w-[200px] overflow-hidden text-ellipsis cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                @click="openDescModal(client.desc)" 
-                :title="client.desc"
+                @click="openDescModal(client.sub_total)" 
+                :title="client.sub_total"
               >
-                {{ client.desc }}
+                {{ client.sub_total }}
+              </td>
+              <td 
+                class="px-6 py-4 whitespace-nowrap text-sm font-medium "
+                :class="client.status === 'new' ? 'text-yellow-500' : 'text-green-500'"
+              >
+                {{ client.status_f }}
+              </td>
+
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                {{ client.order_date_time }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                 <button 
-                  :class="[
-                    'client-offer-button',
-                    {
-                      'btn-primary bg-red-500': client.offer_orders_count > 0,
-                      'btn-primary bg-green-500': client.offer_orders_count === 0
-                    }
-                  ]" 
+                  class="btn-primary bg-red-500" 
                   @click="openOffersModal(client)"
                 >
-                  عرض العروض ({{ client.offer_orders_count }})
+                   عرض العروض 
                 </button>
               </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium flex gap-2">
-                <button class="btn-secondary" @click="handleEditClient(client)">
-                  تعديل
-                </button>
-                <button class="btn-danger" @click="handleDeleteClient(client)">
-                  حذف
-                </button>
-                <router-link :to="`/employee/clients/${client.id}/requests`" class="btn-secondary">
-                  طلبات العميل
-                </router-link>
-              </td>
+             
             </tr>
           </tbody>
         </table>
       </div>
     </div>
 
-    <!-- Add/Edit Client Modal -->
-    <div v-if="showAddModal || showEditModal" class="modal-overlay">
-      <div class="modal-content p-4">
-        <h3 class="text-lg font-semibold mb-4">
-          {{ showEditModal ? 'تعديل عميل' : 'إضافة عميل جديد' }}
-        </h3>
-        <form @submit.prevent="showEditModal ? updateClient() : addClient()">
-          <input v-model="formData.first_name" placeholder="اسم الشركة" class="input-field mb-2" />
-          <input v-model="formData.address" placeholder="عنوان الشركة" class="input-field mb-2" />
-          <input v-model="formData.full_name" placeholder="اسم المسئول" class="input-field mb-2" />
-          <input v-model="formData.phone_info" type="number" placeholder="رقم الجوال" class="input-field mb-2" />
-          <input v-model="formData.email_info" placeholder="البريد" class="input-field mb-2" />
-          <input v-model="formData.web_site" placeholder="الموقع الالكتروني" class="input-field mb-2" />
-          <input v-model="formData.facebook" placeholder="فيسبوك" class="input-field mb-2" />
-          <input v-model="formData.instagram" placeholder="انستجرام" class="input-field mb-2" />
-          <textarea v-model="formData.desc" placeholder="ملاحظات" class="input-field mb-2"></textarea>
-          <div class="text-red-500 my-3">{{ errorMessage }}</div>
-          <div class="flex justify-end space-x-2 space-x-reverse">
-            <button type="button" class="btn-secondary" @click="showAddModal = showEditModal = false">
-              إلغاء
-            </button>
-            <button type="submit" class="btn-primary">حفظ</button>
-          </div>
-        </form>
-      </div>
-    </div>
+   
 
     <!-- Price Offers Modal -->
     <div v-if="showOffersModal" class="modal-overlay">
@@ -161,7 +151,7 @@
           <PriceOffersManager 
             :clientId="selectedClient?.id || 0"
             :client-name="`${selectedClient?.first_name} ${selectedClient?.last_name}` || ''"
-            :offers="selectedClient?.offer_orders || []" 
+            :offers="selectedClient?.offer_orders || order_offers" 
             :is-employee="true" 
             mode="employee"
             @offer-added="refreshClientData" 
@@ -219,6 +209,7 @@ interface Employee {
 
 const clients = ref<Client[]>([]);
 const employees = ref([]);
+const order_offers = ref([]);
 const searchQuery = ref('');
 const selectedEmployeeId = ref(''); // الموظف المختار
 const showAddModal = ref(false);
@@ -248,7 +239,7 @@ const filteredClients = computed(() => {
   // فلترة حسب الموظف المختار
   if (selectedEmployeeId.value) {
     filtered = filtered.filter(client => 
-      client.upload_by_id === Number(selectedEmployeeId.value)
+      client.user_id === Number(selectedEmployeeId.value)
     );
   }
 
@@ -274,17 +265,7 @@ const fetchEmployees = async () => {
     });
 
     if (data && data.key === 1 && data.data) {
-      // استخراج الموظفين الفريدين من العملاء
-      // const uniqueEmployees = new Map<number, Employee>();
-      
-      // clients.value.forEach(client => {
-      //   if (client.upload_by && client.upload_by_name && !uniqueEmployees.has(client.upload_by)) {
-      //     uniqueEmployees.set(client.upload_by, {
-      //       id: client.upload_by,
-      //       name: client.upload_by_name
-      //     });
-      //   }
-      // });
+     
 
       employees.value = data.data;
     }
@@ -294,11 +275,17 @@ const fetchEmployees = async () => {
 };
 
 // جلب العملاء
-const fetchClients = async () => {
+const fetchOrders = async () => {
   try {
-    const { data } = await axios.post("https://crm.be-kite.com/backend/api/clients", {
+    const { data } = await axios.post("https://crm.be-kite.com/backend/api/show-all-orders", {
       lang: "ar"
-    });
+    },
+    {
+        headers: {
+            "Authorization": `${localStorage.getItem("token")}`
+        }   
+    }
+    );
 
     if (data && data.key === 1 && data.data) {
       clients.value = data.data;
@@ -322,63 +309,7 @@ const fetchClients = async () => {
   }
 };
 
-const addClient = async () => {
-  try {
-    const { data } = await axios.post("https://crm.be-kite.com/backend/api/add-client", {
-      ...formData.value,
-      lang: "ar",
-      user_type: "client"
-    });
 
-    if (data && data.key === 1) {
-      showAddModal.value = false;
-      errorMessage.value = '';
-      await fetchClients();
-    } else {
-      errorMessage.value = data.msg || 'حدث خطأ أثناء إضافة العميل';
-    }
-  } catch (error) {
-    console.error("Error adding client:", error);
-    errorMessage.value = 'حدث خطأ أثناء إضافة العميل';
-  }
-};
-
-const updateClient = async () => {
-  try {
-    const { data } = await axios.post("https://crm.be-kite.com/backend/api/update-client", {
-      ...formData.value,
-      lang: "ar",
-      user_type: "client",
-      user_id: selectedClient.value!.id
-    });
-
-    if (data && data.key === 1) {
-      showEditModal.value = false;
-      errorMessage.value = '';
-      await fetchClients();
-    } else {
-      errorMessage.value = data.msg || 'حدث خطأ أثناء تحديث العميل';
-    }
-  } catch (error) {
-    console.error("Error updating client:", error);
-    errorMessage.value = 'حدث خطأ أثناء تحديث العميل';
-  }
-};
-
-const deleteClient = async (client: Client) => {
-  try {
-    const { data } = await axios.post("https://crm.be-kite.com/backend/api/destroy-user", {
-      lang: "ar",
-      user_id: client.id
-    });
-
-    if (data && data.key === 1) {
-      await fetchClients();
-    }
-  } catch (error) {
-    console.error("Error deleting client:", error);
-  }
-};
 
 const refreshClientData = async () => {
   try {
@@ -398,33 +329,40 @@ const refreshClientData = async () => {
   }
 };
 
-const handleAddClient = () => {
-  Object.keys(formData.value).forEach(key => {
-    formData.value[key as keyof typeof formData.value] = '';
-  });
-  errorMessage.value = '';
-  showAddModal.value = true;
-  showEditModal.value = false;
-  selectedClient.value = null;
-};
 
-const handleEditClient = (client: Client) => {
-  Object.assign(formData.value, client);
-  errorMessage.value = '';
-  showEditModal.value = true;
-  showAddModal.value = false;
-  selectedClient.value = client;
-};
 
-const handleDeleteClient = async (client: Client) => {
-  if (confirm(`هل أنت متأكد من حذف العميل ${client.first_name}؟`)) {
-    await deleteClient(client);
-  }
-};
 
-const openOffersModal = (client: Client) => {
+
+
+
+const openOffersModal = async (client: Client) => {
   selectedClient.value = client;
   showOffersModal.value = true;
+
+  try {
+    const { data } = await axios.post("https://crm.be-kite.com/backend/api/show-all-orders", {
+      lang: "ar",
+      type : "offer",
+      provider_id : client?.provider_id
+    },
+    {
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `${localStorage.getItem("token")}`
+      }
+    }
+);
+
+    if (data && data.key === 1 && data.data) {
+      order_offers.value = data.data;
+    //   const updatedClient = clients.value.find(c => c.id === selectedClient.value?.id);
+    //   if (updatedClient) {  
+    //     selectedClient.value = updatedClient;
+    //   }
+    }
+  } catch (error) {
+    console.error("Error refreshing client data:", error);
+  }
 };
 
 const openDescModal = (desc: string) => {
@@ -432,7 +370,7 @@ const openDescModal = (desc: string) => {
   showDescModal.value = true;
 };
 
-onMounted(fetchClients );
+onMounted(fetchOrders );
 onMounted(fetchEmployees );
 </script>
 

@@ -26,6 +26,19 @@ export default [
         component: () => import("@/views/employee/ClientRequestsView.vue"),
         props: true,
       },
+      {
+        path: "quotations",
+        name: "ClientQuotations",
+        component: () => import("@/views/employee/QuotationsView.vue"),
+        props: true,
+      },
+      {
+         path: "notifications",
+          name: "Notifications",
+          component: () => import("@/views/employee/NotificationsView.vue"),
+          props: true,
+      }
+
     ],
   },
 ];

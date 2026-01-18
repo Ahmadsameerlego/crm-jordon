@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gray-50 dark:bg-gray-900" :dir="locale === 'ar' ? 'rtl' : 'ltr'">
+  <div style="max-width: 100%;" class="min-h-screen bg-gray-50 dark:bg-gray-900" :dir="locale === 'ar' ? 'rtl' : 'ltr'">
     <div class="flex">
       <!-- Sidebar -->
       <div
@@ -55,6 +55,18 @@
                 <i class="pi pi-users mr-3"></i>
                 جميع العملاء
               </router-link>
+              <router-link
+                to="/employee/quotations"
+                class="flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors"
+                :class="[
+                  $route.path === '/employee/quotations'
+                    ? 'bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300'
+                    : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700',
+                ]"
+              >
+                <i class="pi pi-users mr-3"></i>
+                العروض
+              </router-link>
 
               <router-link
                 to="/employee/potential-clients"
@@ -94,7 +106,7 @@
       ></div>
 
       <!-- Main Content -->
-      <div class="flex-1 flex flex-col">
+      <div class="flex-1 flex flex-col" style="max-width: 100%;">
         <!-- Header -->
         <header
           class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700"
@@ -115,7 +127,7 @@
                 </h1>
               </div>
 
-              <div class="flex items-center space-x-4">
+              <div class="flex items-center space-x-4 gap-3">
                 <!-- Language Toggle -->
                 <button
                   @click="toggleLanguage"
@@ -125,10 +137,22 @@
                   <i class="pi pi-globe text-lg"></i>
                 </button>
 
+                 <router-link
+                  to="/employee/notification"
+                  class="relative p-2 rounded-lg  bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                  :title="$t('common.profile')"
+                >
+                  <i class="pi pi-bell text-lg"></i>
+                  <span v-if="countNotifications > 0" class="absolute bg-red-500 rounded-full w-5 h-5 top-[-10px] left-[-10px] inline-flex items-center justify-center px-1.5">
+                    {{countNotifications}}
+                  </span>
+                </router-link>
+
+
                 <!-- Theme Toggle -->
                 <button
                   @click="toggleTheme"
-                  class="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                  class="p-2 rounded-lg bg-gray-100  dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
                   :title="$t('common.theme')"
                 >
                   <i :class="isDark ? 'pi pi-sun' : 'pi pi-moon'" class="text-lg"></i>
@@ -156,7 +180,7 @@
         </header>
 
         <!-- Main Content Area -->
-        <main class="flex-1 p-4 sm:p-6 lg:p-8">
+        <main class="flex-1 p-4 sm:p-6 lg:p-8" style="max-width: 100%;">
           <slot></slot>
         </main>
       </div>
@@ -165,11 +189,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useEmployeeAuthStore } from "@/stores/employeeAuth";
 import { useTheme } from "@/composables/useTheme";
 import { useI18n } from "vue-i18n";
+import { set } from "@vueuse/core";
+import axios from "axios";
+
+const countNotifications = ref(0);
+
 
 const router = useRouter();
 const authStore = useEmployeeAuthStore();
@@ -187,7 +216,27 @@ const toggleLanguage = () => {
 };
 
 const handleLogout = () => {
-  authStore.logout();
-  router.push("/employee/login");
+  
+  localStorage.removeItem("token");
+  localStorage.removeItem("user");
+  router.push("/login");
+
+  setTimeout(() => {
+    window.location.reload();
+  }, 500);  
 };
+
+// API Methods
+const fetchClients = async () => {
+  try {
+    const { data } = await axios.post("https://crm.be-kite.com/backend/api/client_home", {
+      lang: "ar"
+    });
+    
+      countNotifications.value = data.notification_count;
+  } catch (error) {
+    console.error("Error fetching clients:", error);
+  }
+};
+onMounted(fetchClients);
 </script>

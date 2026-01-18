@@ -36,6 +36,7 @@ export default {
     hireDate: "تاريخ التعيين",
     title: "العنوان",
     amount: "المبلغ",
+    notes : 'ملاحظات',
   },
   auth: {
     login: "تسجيل الدخول",
@@ -45,6 +46,9 @@ export default {
     forgotPassword: "نسيت كلمة المرور؟",
     loginError: "خطأ في تسجيل الدخول",
     invalidCredentials: "بيانات غير صحيحة",
+    "user_type" : "نوع المستخدم",
+    "admin" : "مدير",
+    "employee" : "موظف"
   },
   dashboard: {
     title: "لوحة التحكم",
@@ -53,6 +57,9 @@ export default {
     recentDeals: "الصفقات الأخيرة",
     recentClients: "العملاء الأخيرة",
     recentEmployees: "الموظفين الأخيرة",
+    lastVisits : "آخر الزيارات",
+    lastRequires : "آخر المتطلبات",
+    last_follows : "آخر المتابعات",
     stats: {
       totalClients: "إجمالي العملاء",
       totalEmployees: "إجمالي الموظفين",
@@ -64,6 +71,11 @@ export default {
       totalVisits: "إجمالي الزيارات",
       newOffers : "العروض الجديدة",
       refusedOffers : "العروض المرفوضة",
+       all_visits_count : "الزيارات الكلية",
+      all_follows_count : "المتابعات الكلية",
+      all_requires_count : "المتطلبات الكلية",
+      all_offers_count : "العروض الكلية",
+      agreedOffers : "العروض المتفق عليها",
     },
   },
   employees: {

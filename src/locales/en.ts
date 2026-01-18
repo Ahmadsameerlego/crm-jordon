@@ -24,6 +24,7 @@ export default {
     date: "Date",
     amount : "Amount",
     time: "Time",
+    notes : "Notes",
   },
   auth: {
     login: "Login",
@@ -33,10 +34,20 @@ export default {
     forgotPassword: "Forgot Password?",
     loginError: "Login Error",
     invalidCredentials: "Invalid credentials",
-    user_type : 'User Type'
+    user_type : 'User Type',
+    "admin" : "Admin",
+    "employee" : "Employee"
   },
   dashboard: {
     title: "Dashboard",
+    recentVisits: "Recent Visits",
+    recentQuotations: "Recent Quotations",
+    recentDeals: "Recent Deals",
+    recentClients: "Recent Clients",
+    recentEmployees: "Recent Employees",
+    lastVisits : "Last Visits",
+    lastRequires : "Last Requires",
+    last_follows : "Last Follows",
     stats: {
       totalClients: "Total Clients",
       totalEmployees: "Total Employees",
@@ -47,6 +58,11 @@ export default {
       conversionRate: "Conversion Rate",
       newOffers : "New Offers",
       refusedOffers : "Refused Offers",
+      all_visits_count : "All Visits",
+      all_follows_count : "All Follows",
+      all_requires_count : "All Requires",
+      all_offers_count : "All Offers",
+      agreedOffers : "Agreed Offers",
     },
     recentClients: "Recent Clients",
     recentQuotations: "Recent Quotations",

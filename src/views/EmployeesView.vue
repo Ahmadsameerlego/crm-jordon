@@ -177,7 +177,7 @@
       </div>
 
       <!-- Pagination -->
-      <div
+      <!-- <div
         class="bg-white dark:bg-gray-800 px-4 py-3 border-t border-gray-200 dark:border-gray-700 sm:px-6"
       >
         <div class="flex items-center justify-between">
@@ -242,7 +242,7 @@
             </div>
           </div>
         </div>
-      </div>
+      </div> -->
     </div>
 
     <!-- Add/Edit Employee Modal -->
@@ -355,7 +355,7 @@
               </p>
             </div>
 
-            <div v-if="!showEditModal">
+            <div >
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 كلمة المرور
               </label>
@@ -570,6 +570,7 @@ const updateEmployee = async () => {
       city: formData.city,
       section_id: formData.departmentId,
       job: formData.position,
+      password: formData.password,
       photo: formData.profilePicture,
     };
 

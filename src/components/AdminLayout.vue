@@ -92,7 +92,7 @@
                 ]"
               >
                 <i class="pi pi-file mr-3"></i>
-                {{ $t("navigation.quotations") }}
+                الطلبات
               </router-link>
 
               <router-link
@@ -172,6 +172,17 @@
 
                 <!-- Profile Icon -->
                 <router-link
+                  to="/admin/notifications"
+                  class="relative p-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                  :title="$t('common.profile')"
+                >
+                  <i class="pi pi-bell text-lg"></i>
+                  <span v-if="countNotifications > 0" class="absolute bg-red-500 rounded-full w-5 h-5 top-[-10px] left-[-10px] inline-flex items-center justify-center px-1.5">
+                    {{countNotifications}}
+                  </span>
+                </router-link>
+                <!-- Profile Icon -->
+                <router-link
                   to="/admin/profile"
                   class="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
                   :title="$t('common.profile')"
@@ -199,17 +210,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed , onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
 import { useTheme } from "@/composables/useTheme";
 import { useI18n } from "vue-i18n";
+import axios from 'axios';
+
 
 const router = useRouter();
 const authStore = useAuthStore();
 const { isDark, toggleTheme } = useTheme();
 const { locale } = useI18n();
-
+const countNotifications = ref(0);
 const isSidebarOpen = ref(false);
 
 const toggleSidebar = () => {
@@ -229,6 +242,21 @@ const handleLogout = () => {
 router.afterEach(() => {
   isSidebarOpen.value = false;
 });
+
+// API Methods
+const fetchClients = async () => {
+  try {
+    const { data } = await axios.post("https://crm.be-kite.com/backend/api/client_home", {
+      lang: "ar"
+    });
+    
+      countNotifications.value = data.notification_count;
+  } catch (error) {
+    console.error("Error fetching clients:", error);
+  }
+};
+onMounted(fetchClients);
+
 </script>
 
 <style scoped>

@@ -231,7 +231,13 @@ const fetchClients = async () => {
   try {
     const { data } = await axios.post("https://crm.be-kite.com/backend/api/client_home", {
       lang: "ar"
-    });
+    },
+    {
+      headers: {
+        "Authorization": localStorage.getItem("token")
+      }
+    }
+  );
     
       countNotifications.value = data.notification_count;
   } catch (error) {

@@ -352,7 +352,9 @@
                       </button>
                     </div>
                   </div>
+
                   <div
+                    v-if="order.status!=='new'"
                     data-v-438c130a=""
                     class="flex items-center justify-between"
                   >
@@ -396,6 +398,12 @@
                       </button>
                     </div>
                   </div>
+
+                  <!-- accept offer  -->
+                   <div class="flex space-x-2 gap-3 justify-center items-center" v-if="order.status==='new'">
+                      <button @click="acceptOffer(order.id)" class="bg-green-500 text-white px-4 py-2 rounded">قبول العرض</button>
+                      <button @click="rejectOffer(order.id)" class="bg-red-500 text-white px-4 py-2 rounded">رفض العرض</button>
+                   </div>
                   <!----><!----><!---->
                 </div>
               </div>
@@ -649,6 +657,50 @@ if (myClients.value.length === 0) {
   );
 }
 
+const acceptOffer = async (orderId: string) => {
+    const {data} = await axios.post(
+    "https://crm.be-kite.com/backend/api/change-order-status",
+{
+  order_id : orderId,
+  status : "agree"
+}
+    ,
+    {
+      headers: {
+        Authorization: localStorage.getItem("token"),
+      },
+    }
+  );
+      if (data && data.key === 1) {
+        showAddOfferModal.value = false;
+        setTimeout(() => {
+          fetchDashboardData();
+        }, 500);
+
+      }
+
+}
+const rejectOffer = async (orderId: string) => {
+    const {data} = await axios.post(
+    "https://crm.be-kite.com/backend/api/change-order-status",
+{
+  order_id : orderId,
+  status : "refused"
+}
+    ,
+    {
+      headers: {
+        Authorization: localStorage.getItem("token"),
+      },
+    }
+  );
+      if (data && data.key === 1) {
+                showAddOfferModal.value = false;
+        setTimeout(() => {
+          fetchDashboardData();
+        }, 500);
+      }
+}
 onMounted(() => {
   fetchDashboardData();
 });

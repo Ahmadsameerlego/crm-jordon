@@ -7,15 +7,9 @@
       <div class="card p-8">
         <div class="flex items-center space-x-6 space-x-reverse">
           <div class="flex-shrink-0">
-            <div
-              class="w-24 h-24 rounded-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center"
-            >
-              <img
-                v-if="profileData.profilePicture"
-                :src="profileData.profilePicture"
-                :alt="profileData.name"
-                class="w-24 h-24 rounded-full object-cover"
-              />
+            <div class="w-24 h-24 rounded-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center">
+              <img v-if="profileData.profilePicture" :src="profileData.profilePicture" :alt="profileData.name"
+                class="w-24 h-24 rounded-full object-cover" />
               <i v-else class="pi pi-user text-4xl text-primary-600 dark:text-primary-400"></i>
             </div>
           </div>
@@ -48,14 +42,8 @@
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 {{ $t("profile.name") }}
               </label>
-              <input
-                v-model="formData.name"
-                type="text"
-                class="input-field"
-                :class="{ 'border-red-500': errors.name }"
-                :disabled="!isEditMode"
-                required
-              />
+              <input v-model="formData.name" type="text" class="input-field" :class="{ 'border-red-500': errors.name }"
+                :disabled="!isEditMode" required />
               <p v-if="errors.name" class="mt-1 text-sm text-red-600 dark:text-red-400">
                 {{ errors.name }}
               </p>
@@ -66,14 +54,8 @@
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 {{ $t("profile.email") }}
               </label>
-              <input
-                v-model="formData.email"
-                type="email"
-                class="input-field"
-                :class="{ 'border-red-500': errors.email }"
-                :disabled="!isEditMode"
-                required
-              />
+              <input v-model="formData.email" type="email" class="input-field"
+                :class="{ 'border-red-500': errors.email }" :disabled="!isEditMode" required />
               <p v-if="errors.email" class="mt-1 text-sm text-red-600 dark:text-red-400">
                 {{ errors.email }}
               </p>
@@ -84,14 +66,8 @@
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 {{ $t("profile.phone") }}
               </label>
-              <input
-                v-model="formData.phone"
-                type="tel"
-                class="input-field"
-                :class="{ 'border-red-500': errors.phone }"
-                :disabled="!isEditMode"
-                required
-              />
+              <input v-model="formData.phone" type="tel" class="input-field" :class="{ 'border-red-500': errors.phone }"
+                :disabled="!isEditMode" required />
               <p v-if="errors.phone" class="mt-1 text-sm text-red-600 dark:text-red-400">
                 {{ errors.phone }}
               </p>
@@ -102,14 +78,8 @@
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 {{ $t("profile.position") }}
               </label>
-              <input
-                v-model="formData.position"
-                type="text"
-                class="input-field"
-                :class="{ 'border-red-500': errors.position }"
-                :disabled="!isEditMode"
-                required
-              />
+              <input v-model="formData.position" type="text" class="input-field"
+                :class="{ 'border-red-500': errors.position }" :disabled="!isEditMode" required />
               <p v-if="errors.position" class="mt-1 text-sm text-red-600 dark:text-red-400">
                 {{ errors.position }}
               </p>
@@ -120,14 +90,8 @@
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 {{ $t("profile.department") }}
               </label>
-              <input
-                v-model="formData.department"
-                type="text"
-                class="input-field"
-                :class="{ 'border-red-500': errors.department }"
-                :disabled="!isEditMode"
-                required
-              />
+              <input v-model="formData.department" type="text" class="input-field"
+                :class="{ 'border-red-500': errors.department }" :disabled="!isEditMode" required />
               <p v-if="errors.department" class="mt-1 text-sm text-red-600 dark:text-red-400">
                 {{ errors.department }}
               </p>
@@ -138,14 +102,8 @@
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 {{ $t("profile.city") }}
               </label>
-              <input
-                v-model="formData.city"
-                type="text"
-                class="input-field"
-                :class="{ 'border-red-500': errors.city }"
-                :disabled="!isEditMode"
-                required
-              />
+              <input v-model="formData.city" type="text" class="input-field" :class="{ 'border-red-500': errors.city }"
+                :disabled="!isEditMode" required />
               <p v-if="errors.city" class="mt-1 text-sm text-red-600 dark:text-red-400">
                 {{ errors.city }}
               </p>
@@ -157,13 +115,8 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {{ $t("profile.profilePicture") }}
             </label>
-            <input
-              v-model="formData.profilePicture"
-              type="url"
-              class="input-field"
-              :placeholder="$t('profile.profilePicturePlaceholder')"
-              :disabled="!isEditMode"
-            />
+            <input v-model="formData.profilePicture" type="url" class="input-field"
+              :placeholder="$t('profile.profilePicturePlaceholder')" :disabled="!isEditMode" />
           </div>
 
           <!-- Bio -->
@@ -171,13 +124,8 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               {{ $t("profile.bio") }}
             </label>
-            <textarea
-              v-model="formData.bio"
-              rows="4"
-              class="input-field resize-none"
-              :placeholder="$t('profile.bioPlaceholder')"
-              :disabled="!isEditMode"
-            ></textarea>
+            <textarea v-model="formData.bio" rows="4" class="input-field resize-none"
+              :placeholder="$t('profile.bioPlaceholder')" :disabled="!isEditMode"></textarea>
           </div>
 
           <!-- Submit Button -->
@@ -237,11 +185,7 @@
     </div>
 
     <!-- Change Password Modal -->
-    <div
-      v-if="showChangePasswordModal"
-      class="modal-overlay"
-      @click="showChangePasswordModal = false"
-    >
+    <div v-if="showChangePasswordModal" class="modal-overlay" @click="showChangePasswordModal = false">
       <div class="modal-content" @click.stop>
         <div class="p-6">
           <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
@@ -253,17 +197,9 @@
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 {{ $t("profile.currentPassword") }}
               </label>
-              <input
-                v-model="passwordForm.currentPassword"
-                type="password"
-                class="input-field"
-                :class="{ 'border-red-500': passwordErrors.currentPassword }"
-                required
-              />
-              <p
-                v-if="passwordErrors.currentPassword"
-                class="mt-1 text-sm text-red-600 dark:text-red-400"
-              >
+              <input v-model="passwordForm.currentPassword" type="password" class="input-field"
+                :class="{ 'border-red-500': passwordErrors.currentPassword }" required />
+              <p v-if="passwordErrors.currentPassword" class="mt-1 text-sm text-red-600 dark:text-red-400">
                 {{ passwordErrors.currentPassword }}
               </p>
             </div>
@@ -272,17 +208,9 @@
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 {{ $t("profile.newPassword") }}
               </label>
-              <input
-                v-model="passwordForm.newPassword"
-                type="password"
-                class="input-field"
-                :class="{ 'border-red-500': passwordErrors.newPassword }"
-                required
-              />
-              <p
-                v-if="passwordErrors.newPassword"
-                class="mt-1 text-sm text-red-600 dark:text-red-400"
-              >
+              <input v-model="passwordForm.newPassword" type="password" class="input-field"
+                :class="{ 'border-red-500': passwordErrors.newPassword }" required />
+              <p v-if="passwordErrors.newPassword" class="mt-1 text-sm text-red-600 dark:text-red-400">
                 {{ passwordErrors.newPassword }}
               </p>
             </div>
@@ -291,17 +219,9 @@
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 {{ $t("profile.confirmPassword") }}
               </label>
-              <input
-                v-model="passwordForm.confirmPassword"
-                type="password"
-                class="input-field"
-                :class="{ 'border-red-500': passwordErrors.confirmPassword }"
-                required
-              />
-              <p
-                v-if="passwordErrors.confirmPassword"
-                class="mt-1 text-sm text-red-600 dark:text-red-400"
-              >
+              <input v-model="passwordForm.confirmPassword" type="password" class="input-field"
+                :class="{ 'border-red-500': passwordErrors.confirmPassword }" required />
+              <p v-if="passwordErrors.confirmPassword" class="mt-1 text-sm text-red-600 dark:text-red-400">
                 {{ passwordErrors.confirmPassword }}
               </p>
             </div>
@@ -331,23 +251,28 @@
 import { ref, reactive, onMounted } from "vue";
 import { useForm } from "@/composables/useForm";
 import AdminLayout from "@/components/AdminLayout.vue";
+import axios from "axios";
+import { useI18n } from "vue-i18n";
 
 // State
 const isEditMode = ref(false);
 const showChangePasswordModal = ref(false);
 const isChangingPassword = ref(false);
+const { locale } = useI18n();
 
 // Profile data
 const profileData = reactive({
-  name: "أحمد محمد",
-  email: "admin@example.com",
-  role: "مدير النظام",
-  phone: "+966 50 123 4567",
-  position: "مدير عام",
-  department: "الإدارة العامة",
-  city: "الرياض",
+  name: "",
+  email: "",
+  role: "",
+  phone: "",
+  position: "",
+  department: "",
+  city: "",
   profilePicture: "",
-  bio: "مدير نظام إدارة العملاء مع خبرة أكثر من 10 سنوات في مجال إدارة المشاريع والأنظمة.",
+  bio: "",
+  city_id: 0,
+  section_id: 0,
 });
 
 // Form data
@@ -405,20 +330,96 @@ const toggleEditMode = () => {
   }
 };
 
+const fetchUserData = async () => {
+  try {
+    const { data } = await axios.post("https://crm.be-kite.com/backend/api/show-user", {
+      lang: locale.value
+    },
+      {
+        headers: {
+          "Authorization": localStorage.getItem("token")
+        }
+      });
+
+    if (data && data.data) {
+      const user = data.data;
+      profileData.name = user.first_name || "";
+      profileData.email = user.email || "";
+      profileData.role = user.user_type || "";
+      profileData.phone = user.phone || "";
+      profileData.position = user.job || "";
+      profileData.department = user.section_title || "";
+      profileData.city = user.city || "";
+      profileData.profilePicture = user.avatar || "";
+      profileData.bio = user.desc || "";
+
+      // Store IDs for update
+      profileData.city_id = user.city_id || "";
+      profileData.section_id = user.section_id || "";
+
+      formData.name = profileData.name;
+      formData.email = profileData.email;
+      formData.phone = profileData.phone;
+      formData.position = profileData.position;
+      formData.department = profileData.department;
+      formData.city = profileData.city;
+      formData.profilePicture = profileData.profilePicture;
+      formData.bio = profileData.bio;
+    }
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+  }
+};
+
 const handleSubmit = async () => {
   if (!validateForm()) return;
 
   isSubmitting.value = true;
 
   try {
-    // Update profile data
-    Object.assign(profileData, formData);
+    const updatePayload = new FormData();
+    updatePayload.append("lang", locale.value);
+    updatePayload.append("first_name", formData.name);
+    updatePayload.append("email", formData.email);
+    updatePayload.append("phone", formData.phone);
+    updatePayload.append("job", formData.position);
+    // Use stored IDs if available, otherwise we might need to handle how these are updated.
+    // For now passing the existing IDs as we don't have inputs for them that return IDs.
+    if (profileData.city_id) updatePayload.append("city_id", String(profileData.city_id));
+    if (profileData.section_id) updatePayload.append("section_id", String(profileData.section_id));
 
-    // Here you would typically make an API call to update the profile
-    // await authStore.updateProfile(formData);
+    updatePayload.append("desc", formData.bio);
 
-    isEditMode.value = false;
-    resetForm();
+    // For photo, the current UI uses a URL string input.
+    // If the API supports URL in 'photo' field (description says "link or multipart"):
+    if (formData.profilePicture && formData.profilePicture !== profileData.profilePicture) {
+      // logic if user changed it. Current implementation is just text.
+      // The user said "photo" type is "file". Sending a string might fail if backend enforces file.
+      // However, description says "link or multipart".
+      // We'll append it if it's not empty.
+      // Note: Standard FormData will send this as a string.
+      // If it needs to be a file upload, we'd need <input type="file">.
+      // Assuming it handles link:
+      // updatePayload.append("photo", formData.profilePicture);
+    }
+
+    const { data } = await axios.post("https://crm.be-kite.com/backend/api/update-user", updatePayload, {
+      headers: {
+        "Authorization": localStorage.getItem("token"),
+        "Content-Type": "multipart/form-data"
+      }
+    });
+
+    if (data.status === "success" || data.msg === "تم بنجاح" || data.key === 1) {
+      // Update local profile data
+      Object.assign(profileData, formData);
+      isEditMode.value = false;
+      resetForm();
+      // Refresh data to be sure
+      fetchUserData();
+    } else {
+      console.error("Update failed:", data);
+    }
   } catch (error) {
     console.error("Error updating profile:", error);
   } finally {
@@ -473,14 +474,6 @@ const handleChangePassword = async () => {
 };
 
 onMounted(() => {
-  // Initialize form data with current profile data
-  formData.name = profileData.name;
-  formData.email = profileData.email;
-  formData.phone = profileData.phone;
-  formData.position = profileData.position;
-  formData.department = profileData.department;
-  formData.city = profileData.city;
-  formData.profilePicture = profileData.profilePicture;
-  formData.bio = profileData.bio;
+  fetchUserData();
 });
 </script>

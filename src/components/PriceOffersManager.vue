@@ -87,7 +87,7 @@
           </div>
 
           <!-- Contract File -->
-          <div class="flex items-center justify-between">
+          <div v-if="offer.status!=='new'" class="flex items-center justify-between">
             <div class="flex items-center">
               <i class="pi pi-file-pdf text-green-500 mr-2"></i>
               <span class="text-sm text-gray-600 dark:text-gray-400">ملف العقد:</span>
@@ -157,9 +157,9 @@
               </label>
               <select v-model="formData.payment_method" required
                 class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-800 dark:text-gray-100">
+                                <option value="JOD">دينار أردني (JOD)</option>
                 <option value="SAR">ريال سعودي (SAR)</option>
                 <option value="USD">دولار أمريكي (USD)</option>
-                <option value="JOD">دينار أردني (JOD)</option>
               </select>
             </div>
           </div>
@@ -248,7 +248,7 @@ const formData = ref({
   service_title_ar: "",
   notes: "",
   sub_total: 0,
-  payment_method: "SAR",
+  payment_method: "JOD",
   photo: null as File | null
 });
 
@@ -270,7 +270,7 @@ const resetForm = () => {
     service_title_ar: "",
     notes: "",
     sub_total: 0,
-    payment_method: "SAR",
+    payment_method: "JOD",
     photo: null
   };
   editingOfferId.value = null;

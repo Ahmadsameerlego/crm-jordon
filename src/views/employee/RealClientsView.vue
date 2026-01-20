@@ -7,31 +7,31 @@
       <div class="flex items-center space-x-4 gap-3">
         <!-- Search Input -->
         <div class="relative">
-          <input 
-            v-model="searchQuery" 
-            type="text" 
+          <input
+            v-model="searchQuery"
+            type="text"
             :placeholder="$t('common.search')"
-            class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-800 dark:text-gray-100" 
+            class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-800 dark:text-gray-100"
           />
           <i class="pi pi-search absolute right-3 left-2 top-1/3 transform -translate-y-1/2 text-gray-400"></i>
         </div>
 
         <!-- Employee Filter Dropdown -->
         <div class="relative">
-          <select 
+          <!-- <select
             dir="ltr"
-            v-model="selectedEmployeeId" 
+            v-model="selectedEmployeeId"
             class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-800 dark:text-gray-100 min-w-[200px]"
           >
             <option value="" selected hidden disabled>كل الموظفين</option>
-            <option 
-              v-for="employee in employees" 
-              :key="employee.id" 
+            <option
+              v-for="employee in employees"
+              :key="employee.id"
               :value="employee.id"
             >
               {{ employee.first_name }}
             </option>
-          </select>
+          </select> -->
         </div>
       </div>
 
@@ -74,29 +74,29 @@
               <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
                 {{ client.upload_by_name }}
               </td>
-              <td  @click="openDescModal(client.first_name)" 
+              <td  @click="openDescModal(client.first_name)"
                 :title="client.first_name" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 max-w-[200px] overflow-hidden text-ellipsis cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                 {{ client.first_name }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                 {{ client.phone_info }}
               </td>
-              <td 
+              <td
                 class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 max-w-[200px] overflow-hidden text-ellipsis cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                @click="openDescModal(client.desc)" 
+                @click="openDescModal(client.desc)"
                 :title="client.desc"
               >
                 {{ client.desc }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                <button 
+                <button
                   :class="[
                     'client-offer-button',
                     {
                       'btn-primary bg-red-500': client.offer_orders_count > 0,
                       'btn-primary bg-green-500': client.offer_orders_count === 0
                     }
-                  ]" 
+                  ]"
                   @click="openOffersModal(client)"
                 >
                   عرض العروض ({{ client.offer_orders_count }})
@@ -158,13 +158,13 @@
           </button>
         </div>
         <div class="h-full overflow-y-auto">
-          <PriceOffersManager 
+          <PriceOffersManager
             :clientId="selectedClient?.id || 0"
             :client-name="`${selectedClient?.first_name} ${selectedClient?.last_name}` || ''"
-            :offers="selectedClient?.offer_orders || []" 
-            :is-employee="true" 
+            :offers="selectedClient?.offer_orders || []"
+            :is-employee="true"
             mode="employee"
-            @offer-added="refreshClientData" 
+            @offer-added="refreshClientData"
           />
         </div>
       </div>
@@ -247,7 +247,7 @@ const filteredClients = computed(() => {
 
   // فلترة حسب الموظف المختار
   if (selectedEmployeeId.value) {
-    filtered = filtered.filter(client => 
+    filtered = filtered.filter(client =>
       client.upload_by_id === Number(selectedEmployeeId.value)
     );
   }
@@ -276,7 +276,7 @@ const fetchEmployees = async () => {
     if (data && data.key === 1 && data.data) {
       // استخراج الموظفين الفريدين من العملاء
       // const uniqueEmployees = new Map<number, Employee>();
-      
+
       // clients.value.forEach(client => {
       //   if (client.upload_by && client.upload_by_name && !uniqueEmployees.has(client.upload_by)) {
       //     uniqueEmployees.set(client.upload_by, {
@@ -309,10 +309,10 @@ const fetchClients = async () => {
 
     if (data && data.key === 1 && data.data) {
       clients.value = data.data;
-      
+
       // // بعد جلب العملاء، نستخرج الموظفين منهم
       // const uniqueEmployees = new Map<number, Employee>();
-      
+
       // data.data.forEach((client: Client) => {
       //   if (client.upload_by && client.upload_by_name && !uniqueEmployees.has(client.upload_by)) {
       //     uniqueEmployees.set(client.upload_by, {

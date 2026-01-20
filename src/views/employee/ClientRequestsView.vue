@@ -465,7 +465,7 @@ async function addRequirement() {
     }
   })
   fetchOrders();
-  
+
   closeReqModal();
 }
 const req_id = ref('') ;
@@ -525,7 +525,9 @@ const allOrders = ref([])
 const fetchOrders = async () => {
   try {
     const { data } = await axios.post(
-      "https://crm.be-kite.com/backend/api/show-all-orders" ,{},
+      "https://crm.be-kite.com/backend/api/show-all-orders" ,{
+        provider_id : route.params.clientId
+      },
       {
         headers:{
           Authorization : localStorage.getItem('token')
@@ -537,7 +539,7 @@ const fetchOrders = async () => {
     }
   } catch (err) {
     console.error(err)
-  } 
+  }
 };
 
 // computed filters

@@ -16,9 +16,9 @@
         </div>
       </div>
       <div class="flex items-center space-x-4">
-        <button @click="showAddModal = true" class="btn-primary">
-          <i class="pi pi-plus mr-2"></i>
-          إضافة عميل جديد
+        <button @click="showAddModal = true" class="btn-primary flex items-center gap-2">
+          <i class="pi pi-plus"></i>
+          <span class="hidden lg:block">إضافة عميل جديد</span>
         </button>
       </div>
     </div>

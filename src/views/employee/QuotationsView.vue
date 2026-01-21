@@ -7,35 +7,35 @@
       <div class="flex items-center space-x-4 gap-3">
         <!-- Search Input -->
         <div class="relative">
-          <input 
-            v-model="searchQuery" 
-            type="text" 
+          <input
+            v-model="searchQuery"
+            type="text"
             :placeholder="$t('common.search')"
-            class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-800 dark:text-gray-100" 
+            class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-800 dark:text-gray-100"
           />
           <i class="pi pi-search absolute right-3 left-2 top-1/3 transform -translate-y-1/2 text-gray-400"></i>
         </div>
 
         <!-- Employee Filter Dropdown -->
         <div class="relative">
-          <select 
+          <!-- <select
             dir="ltr"
-            v-model="selectedEmployeeId" 
+            v-model="selectedEmployeeId"
             class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-800 dark:text-gray-100 min-w-[200px]"
           >
             <option value="" selected hidden disabled>كل الموظفين</option>
-            <option 
-              v-for="employee in employees" 
-              :key="employee.id" 
+            <option
+              v-for="employee in employees"
+              :key="employee.id"
               :value="employee.id"
             >
               {{ employee.first_name }}
             </option>
-          </select>
+          </select> -->
         </div>
       </div>
 
-      
+
     </div>
 
     <!-- Clients Table -->
@@ -51,22 +51,22 @@
                 اسم المسئول
               </th>
               <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                اسم الشركة  
+                اسم الشركة
               </th>
               <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 الخدمة المطلوبة
               </th>
               <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                الملاحظات   
+                الملاحظات
               </th>
               <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                المبلغ   
+                المبلغ
               </th>
               <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                الحالة     
+                الحالة
               </th>
               <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                تاريخ الطلب     
+                تاريخ الطلب
               </th>
               <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 عروض الأسعار
@@ -81,35 +81,35 @@
               <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
                 {{ client.user_name }}
               </td>
-             
+
               <td @click="openDescModal(client.provider_name)" :title="client.provider_name" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 max-w-[200px] overflow-hidden text-ellipsis cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                 {{ client.provider_name }}
               </td>
-               <td  @click="openDescModal(client.provider_first_name)" 
+               <td  @click="openDescModal(client.provider_first_name)"
                 :title="client.provider_first_name" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 max-w-[200px] overflow-hidden text-ellipsis cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                 {{ client.provider_first_name }}
               </td>
-               <td  @click="openDescModal(client.service_title_ar)" 
+               <td  @click="openDescModal(client.service_title_ar)"
                 :title="client.service_title_ar" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 max-w-[200px] overflow-hidden text-ellipsis cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                 {{ client.service_title_ar }}
               </td>
 
 
-              <td 
+              <td
                 class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 max-w-[200px] overflow-hidden text-ellipsis cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                @click="openDescModal(client.notes)" 
+                @click="openDescModal(client.notes)"
                 :title="client.notes"
               >
                 {{ client.notes }}
               </td>
-              <td 
+              <td
                 class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 max-w-[200px] overflow-hidden text-ellipsis cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                @click="openDescModal(client.sub_total)" 
+                @click="openDescModal(client.sub_total)"
                 :title="client.sub_total"
               >
                 {{ client.sub_total }}
               </td>
-              <td 
+              <td
                 class="px-6 py-4 whitespace-nowrap text-sm font-medium "
                 :class="client.status === 'new' ? 'text-yellow-500' : 'text-green-500'"
               >
@@ -120,21 +120,21 @@
                 {{ client.order_date_time }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                <button 
-                  class="btn-primary bg-red-500" 
+                <button
+                  class="btn-primary bg-red-500"
                   @click="openOffersModal(client)"
                 >
-                   عرض العروض 
+                   عرض العروض
                 </button>
               </td>
-             
+
             </tr>
           </tbody>
         </table>
       </div>
     </div>
 
-   
+
 
     <!-- Price Offers Modal -->
     <div v-if="showOffersModal" class="modal-overlay">
@@ -148,13 +148,13 @@
           </button>
         </div>
         <div class="h-full overflow-y-auto">
-          <PriceOffersManager 
+          <PriceOffersManager
             :clientId="selectedClient?.id || 0"
             :client-name="`${selectedClient?.first_name} ${selectedClient?.last_name}` || ''"
-            :offers="selectedClient?.offer_orders || order_offers" 
-            :is-employee="true" 
+            :offers="selectedClient?.offer_orders || order_offers"
+            :is-employee="true"
             mode="employee"
-            @offer-added="refreshClientData" 
+            @offer-added="refreshClientData"
           />
         </div>
       </div>
@@ -238,7 +238,7 @@ const filteredClients = computed(() => {
 
   // فلترة حسب الموظف المختار
   if (selectedEmployeeId.value) {
-    filtered = filtered.filter(client => 
+    filtered = filtered.filter(client =>
       client.user_id === Number(selectedEmployeeId.value)
     );
   }
@@ -247,8 +247,8 @@ const filteredClients = computed(() => {
   if (searchQuery.value) {
     const query = searchQuery.value.toLowerCase();
     filtered = filtered.filter(client =>
-      (client.first_name || '').toLowerCase().includes(query) ||
-      (client.full_name || '').toLowerCase().includes(query) ||
+      (client.provider_first_name || '').toLowerCase().includes(query) ||
+      (client.user_name || '').toLowerCase().includes(query) ||
       (client.email_info || '').toLowerCase().includes(query) ||
       (client.upload_by_name || '').toLowerCase().includes(query)
     );
@@ -265,7 +265,7 @@ const fetchEmployees = async () => {
     });
 
     if (data && data.key === 1 && data.data) {
-     
+
 
       employees.value = data.data;
     }
@@ -284,16 +284,16 @@ const fetchOrders = async () => {
     {
         headers: {
             "Authorization": `${localStorage.getItem("token")}`
-        }   
+        }
     }
     );
 
     if (data && data.key === 1 && data.data) {
       clients.value = data.data;
-      
+
       // // بعد جلب العملاء، نستخرج الموظفين منهم
       // const uniqueEmployees = new Map<number, Employee>();
-      
+
       // data.data.forEach((client: Client) => {
       //   if (client.upload_by && client.upload_by_name && !uniqueEmployees.has(client.upload_by)) {
       //     uniqueEmployees.set(client.upload_by, {
@@ -357,7 +357,7 @@ const openOffersModal = async (client: Client) => {
     if (data && data.key === 1 && data.data) {
       order_offers.value = data.data;
     //   const updatedClient = clients.value.find(c => c.id === selectedClient.value?.id);
-    //   if (updatedClient) {  
+    //   if (updatedClient) {
     //     selectedClient.value = updatedClient;
     //   }
     }

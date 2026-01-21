@@ -48,15 +48,15 @@ const router = createRouter({
           props: true,
         },
         {
-          path: "quotations",
-          name: "ClientQuotations",
-          component: () => import("@/views/employee/QuotationsView.vue"),
+          path: "notifications",
+          name: "emp-notifications",
+          component: () => import("@/views/employee/EmpNotificationsView.vue"),
           props: true,
         },
         {
-          path: "notification",
-          name: "Notifications",
-          component: () => import("@/views/employee/NotificationsView.vue"),
+          path: "quotations",
+          name: "ClientQuotations",
+          component: () => import("@/views/employee/QuotationsView.vue"),
           props: true,
         }
       ],

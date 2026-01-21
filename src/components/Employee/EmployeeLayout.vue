@@ -122,7 +122,7 @@
                   <i class="pi pi-bars text-lg"></i>
                 </button>
 
-                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-white hidden lg:block">
                   <slot name="title">{{ $t("dashboard.title") }} </slot>
                 </h1>
               </div>
@@ -138,7 +138,7 @@
                 </button>
 
                  <router-link
-                  to="/employee/notification"
+                  to="/employee/notifications"
                   class="relative p-2 rounded-lg  bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
                   :title="$t('common.profile')"
                 >
@@ -216,14 +216,14 @@ const toggleLanguage = () => {
 };
 
 const handleLogout = () => {
-  
+
   localStorage.removeItem("token");
   localStorage.removeItem("user");
   router.push("/login");
 
   setTimeout(() => {
     window.location.reload();
-  }, 500);  
+  }, 500);
 };
 
 // API Methods
@@ -238,7 +238,7 @@ const fetchClients = async () => {
       }
     }
   );
-    
+
       countNotifications.value = data.notification_count;
   } catch (error) {
     console.error("Error fetching clients:", error);

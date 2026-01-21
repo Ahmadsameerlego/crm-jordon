@@ -4,7 +4,7 @@
 
     <!-- Header Section -->
     <div class="flex justify-between items-center mb-6">
-      <div class="flex items-center space-x-4 gap-3">
+      <div class="flex items-center space-x-4 gap-3 flex-wrap">
         <!-- Search Input -->
         <div class="relative">
           <input
@@ -35,6 +35,15 @@
         </div>
       </div>
 
+      <div>
+        <button
+          @click="exportData"
+          class="bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-primary-600 dark:hover:bg-primary-700 flex items-center gap-2"
+        >
+          <i class="pi pi-download "></i>
+          <span class="hidden lg:block">{{ $t("table.export") }}</span>
+        </button>
+      </div>
 
     </div>
 
@@ -71,9 +80,9 @@
               <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 عروض الأسعار
               </th>
-              <!-- <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 إجراءات
-              </th> -->
+              </th>
             </tr>
           </thead>
           <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
@@ -120,11 +129,18 @@
                 {{ client.order_date_time }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+
                 <button
                   class="btn-primary bg-red-500"
                   @click="openOffersModal(client)"
                 >
                    عرض العروض
+                </button>
+
+              </td>
+              <td>
+                <button class="btn-danger mx-3" @click="handleDeleteQuotation(client)">
+                  حذف
                 </button>
               </td>
 
@@ -182,6 +198,7 @@ import { ref, computed, onMounted } from 'vue';
 import axios from 'axios';
 import AdminLayout from "@/components/AdminLayout.vue";
 import PriceOffersManager from '@/components/PriceOffersManager.vue';
+import { exportToCSV, exportToXLSX } from "@/utils/export";
 
 interface Client {
   id: number;
@@ -289,23 +306,31 @@ const fetchOrders = async () => {
 
     if (data && data.key === 1 && data.data) {
       clients.value = data.data;
-
-      // // بعد جلب العملاء، نستخرج الموظفين منهم
-      // const uniqueEmployees = new Map<number, Employee>();
-
-      // data.data.forEach((client: Client) => {
-      //   if (client.upload_by && client.upload_by_name && !uniqueEmployees.has(client.upload_by)) {
-      //     uniqueEmployees.set(client.upload_by, {
-      //       id: client.upload_by,
-      //       name: client.upload_by_name
-      //     });
-      //   }
-      // });
-
-      // employees.value = Array.from(uniqueEmployees.values());
     }
   } catch (error) {
     console.error("Error fetching clients:", error);
+  }
+};
+
+// delete order
+const handleDeleteQuotation = async (client: Client) => {
+  try {
+    const { data } = await axios.post("https://crm.be-kite.com/backend/api/delete-order", {
+      lang: "ar",
+      order_id: client.id
+    },
+    {
+        headers: {
+            "Authorization": `${localStorage.getItem("token")}`
+        }
+    }
+    );
+
+    if (data && data.key === 1) {
+      fetchOrders();
+    }
+  } catch (error) {
+    console.error("Error deleting client:", error);
   }
 };
 
@@ -374,6 +399,26 @@ const openOffersModal = async (client: Client) => {
 const openDescModal = (desc: string) => {
   selectedDesc.value = desc;
   showDescModal.value = true;
+};
+
+
+// Export
+const exportData = () => {
+  const data = clients.value.map((client) => ({
+    EmployeeName: client.user_name || "غير محدد",
+    CompanyName: client.provider_first_name || "غير محدد",
+    ServiceTitle: client.service_title_ar || "غير محدد",
+    Phone: client.provider_phone || "غير محدد",
+    Description: client.notes || "غير محدد",
+    Offers: client.offer_orders_count || "غير محدد",
+    ClientName: client.provider_full_name || "غير محدد",
+    Price : client.sub_total || "غير محدد",
+    Status : client.status_f || "غير محدد",
+    Date : client.order_date_time || "غير محدد",
+
+  }));
+  exportToCSV(data, "orders");
+  exportToXLSX(data, "orders");
 };
 
 onMounted(fetchOrders );

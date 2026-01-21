@@ -18,13 +18,13 @@
         </div>
       </div>
       <div class="flex items-center space-x-4 ">
-        <button @click="exportData" class="btn-secondary mx-3">
-          <i class="pi pi-download mr-2"></i>
-          تصدير البيانات
+        <button @click="exportData" class="btn-secondary mx-3 flex items-center gap-2">
+          <i class="pi pi-download "></i>
+          <span class="hidden lg:block">تصدير البيانات</span>
         </button>
-        <button @click="showAddModal = true" class="btn-primary">
-          <i class="pi pi-plus mr-2"></i>
-          إضافة قسم جديد
+        <button @click="showAddModal = true" class="btn-primary flex items-center gap-2">
+          <i class="pi pi-plus "></i>
+          <span class="hidden lg:block">إضافة قسم جديد</span>
         </button>
       </div>
     </div>

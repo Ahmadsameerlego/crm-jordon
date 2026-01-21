@@ -6,29 +6,40 @@
     <div class="flex justify-between items-center mb-6">
       <div class="flex items-center space-x-4">
         <div class="relative">
-          <input
-            v-model="searchQuery"
-            type="text"
-            :placeholder="$t('common.search')"
-            class="pl-10 pr-2  py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-800 dark:text-gray-100"
-          />
-          <i
-            class="pi pi-search absolute left-2 right-auto top-3 transform -translate-y-1/2 text-gray-400"
-          ></i>
+          <input v-model="searchQuery" type="text" :placeholder="$t('common.search')"
+            class="pl-10 pr-2  py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-800 dark:text-gray-100" />
+          <i class="pi pi-search absolute left-2 right-auto top-3 transform -translate-y-1/2 text-gray-400"></i>
         </div>
       </div>
       <div class="flex items-center space-x-4">
-        <button @click="exportData" class="btn-secondary mx-3">
-          <i class="pi pi-download mr-2"></i>
-          {{ $t("table.export") }}
+        <button @click="exportData" class="btn-secondary mx-3 flex items-center gap-2">
+          <i class="pi pi-download "></i>
+         <span class="hidden lg:block"> {{ $t("table.export") }}</span>
         </button>
-        <button @click="showAddModal = true" class="btn-primary mx-3">
-          <i class="pi pi-plus mr-2"></i>
-          {{ $t("employees.addEmployee") }}
+        <button @click="showAddModal = true" class="btn-primary mx-3 flex items-center gap-2">
+          <i class="pi pi-plus "></i>
+          <span class="hidden lg:block"> {{ $t("employees.addEmployee") }}</span>
         </button>
       </div>
     </div>
 
+    <!-- filter active & deactive  -->
+     <div class="flex items-center justify-center gap-4 mb-6">
+        <div class="flex items-center space-x-4">
+          <button @click="filterEmployees(false)" class="btn-primary mx-4 flex items-center gap-2">
+            <i class="pi pi-user"></i>
+            <span class="hidden lg:block">موظف نشط</span>
+          </button>
+          <button @click="filterEmployees(true)" class="btn-secondary flex items-center gap-2">
+            <i class="pi pi-user"></i>
+              <span class="hidden lg:block">موظف غير نشط</span>
+          </button>
+          <button @click="filterEmployees(null)" class="btn-secondary flex items-center gap-2">
+            <i class="pi pi-filter"></i>
+            <span class="hidden lg:block">الكل</span>
+          </button>
+        </div>
+    </div>
     <!-- Data Table -->
     <div class="card">
       <div class="overflow-x-auto">
@@ -37,136 +48,108 @@
             <tr>
               <th
                 class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer"
-                @click="sortBy('name')"
-              >
+                @click="sortBy('name')">
                 {{ $t("employees.name") }}
-                <i
-                  v-if="sortField === 'name'"
-                  :class="sortOrder === 'asc' ? 'pi pi-sort-up' : 'pi pi-sort-down'"
-                  class="mr-1"
-                ></i>
+                <i v-if="sortField === 'name'" :class="sortOrder === 'asc' ? 'pi pi-sort-up' : 'pi pi-sort-down'"
+                  class="mr-1"></i>
               </th>
               <th
                 class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer"
-                @click="sortBy('email')"
-              >
+                @click="sortBy('email')">
                 {{ $t("employees.email") }}
-                <i
-                  v-if="sortField === 'email'"
-                  :class="sortOrder === 'asc' ? 'pi pi-sort-up' : 'pi pi-sort-down'"
-                  class="mr-1"
-                ></i>
+                <i v-if="sortField === 'email'" :class="sortOrder === 'asc' ? 'pi pi-sort-up' : 'pi pi-sort-down'"
+                  class="mr-1"></i>
               </th>
               <th
                 class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer"
-                @click="sortBy('phone')"
-              >
+                @click="sortBy('phone')">
                 {{ $t("employees.phone") }}
-                <i
-                  v-if="sortField === 'phone'"
-                  :class="sortOrder === 'asc' ? 'pi pi-sort-up' : 'pi pi-sort-down'"
-                  class="mr-1"
-                ></i>
+                <i v-if="sortField === 'phone'" :class="sortOrder === 'asc' ? 'pi pi-sort-up' : 'pi pi-sort-down'"
+                  class="mr-1"></i>
               </th>
               <th
                 class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer"
-                @click="sortBy('city')"
-              >
+                @click="sortBy('city')">
                 {{ $t("employees.city") }}
-                <i
-                  v-if="sortField === 'city'"
-                  :class="sortOrder === 'asc' ? 'pi pi-sort-up' : 'pi pi-sort-down'"
-                  class="mr-1"
-                ></i>
+                <i v-if="sortField === 'city'" :class="sortOrder === 'asc' ? 'pi pi-sort-up' : 'pi pi-sort-down'"
+                  class="mr-1"></i>
               </th>
               <th
                 class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer"
-                @click="sortBy('position')"
-              >
+                @click="sortBy('position')">
                 المسمى الوظيفي
-                <i
-                  v-if="sortField === 'position'"
-                  :class="sortOrder === 'asc' ? 'pi pi-sort-up' : 'pi pi-sort-down'"
-                  class="mr-1"
-                ></i>
+                <i v-if="sortField === 'position'" :class="sortOrder === 'asc' ? 'pi pi-sort-up' : 'pi pi-sort-down'"
+                  class="mr-1"></i>
               </th>
               <th
                 class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer"
-                @click="sortBy('departmentName')"
-              >
+                @click="sortBy('departmentName')">
                 القسم
-                <i
-                  v-if="sortField === 'departmentName'"
-                  :class="sortOrder === 'asc' ? 'pi pi-sort-up' : 'pi pi-sort-down'"
-                  class="mr-1"
-                ></i>
+                <i v-if="sortField === 'departmentName'"
+                  :class="sortOrder === 'asc' ? 'pi pi-sort-up' : 'pi pi-sort-down'" class="mr-1"></i>
               </th>
               <th
-                class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-              >
+                class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 {{ $t("common.actions") }}
               </th>
             </tr>
           </thead>
           <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-            <tr
-              v-for="employee in filteredEmployees"
-              :key="employee.id"
-              class="hover:bg-gray-50 dark:hover:bg-gray-700"
-            >
+            <tr v-for="emp in filteredEmployees" :key="emp.id"
+              class="hover:bg-gray-50 dark:hover:bg-gray-700">
               <td class="px-6 py-4 whitespace-nowrap">
                 <div class="flex items-center">
                   <div class="flex-shrink-0 h-10 w-10">
-                    <img
-                      v-if="employee.profilePicture"
-                      :src="employee.profilePicture"
-                      :alt="employee.name"
-                      class="h-10 w-10 rounded-full object-cover"
-                    />
-                    <div
-                      v-else
-                      class="h-10 w-10 rounded-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center"
-                    >
+                    <img v-if="emp.profilePicture" :src="emp.profilePicture" :alt="emp.name"
+                      class="h-10 w-10 rounded-full object-cover" />
+                    <div v-else
+                      class="h-10 w-10 rounded-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center">
                       <i class="pi pi-user text-primary-600 dark:text-primary-400"></i>
                     </div>
                   </div>
                   <div class="mr-4">
                     <div class="text-sm font-medium text-gray-900 dark:text-white">
-                      {{ employee.name }}
+                      {{ emp.name }}
                     </div>
                     <div class="text-sm text-gray-500 dark:text-gray-400">
-                      {{ employee.position }}
+                      {{ emp.position }}
                     </div>
                   </div>
                 </div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                {{ employee.email }}
+                {{ emp.email }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                {{ employee.phone }}
+                {{ emp.phone }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                {{ employee.city }}
+                {{ emp.city }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                {{ employee.position }}
+                {{ emp.position }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                {{ employee.departmentName || "غير محدد" }}
+                {{ emp.departmentName || "غير محدد" }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                 <div class="flex items-center space-x-2 space-x-reverse">
-                  <button
-                    @click="editEmployee(employee)"
-                    class="text-primary-600 dark:text-primary-400 hover:text-primary-900 dark:hover:text-primary-300"
-                  >
+                  <!-- toggle active -->
+                   <label class="toggle-switch">
+                      <input
+                        type="checkbox"
+                        :checked="!emp.is_blocked"
+                        @change="toggleActive(emp.id , emp.is_blocked)"
+                      >
+                      <span class="slider"></span>
+                    </label>
+
+                  <button @click="editEmployee(emp)"
+                    class="text-primary-600 dark:text-primary-400 hover:text-primary-900 dark:hover:text-primary-300">
                     <i class="pi pi-pencil"></i>
                   </button>
-                  <button
-                    @click="deleteEmployee(employee.id)"
-                    class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300"
-                  >
+                  <button @click="deleteEmployee(emp.id)"
+                    class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300">
                     <i class="pi pi-trash"></i>
                   </button>
                 </div>
@@ -258,13 +241,8 @@
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 {{ $t("employees.name") }}
               </label>
-              <input
-                v-model="formData.name"
-                type="text"
-                class="input-field"
-                :class="{ 'border-red-500': errors.name }"
-                required
-              />
+              <input v-model="formData.name" type="text" class="input-field" :class="{ 'border-red-500': errors.name }"
+                required />
               <p v-if="errors.name" class="mt-1 text-sm text-red-600 dark:text-red-400">
                 {{ errors.name }}
               </p>
@@ -274,13 +252,8 @@
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 {{ $t("employees.email") }}
               </label>
-              <input
-                v-model="formData.email"
-                type="email"
-                class="input-field"
-                :class="{ 'border-red-500': errors.email }"
-                required
-              />
+              <input v-model="formData.email" type="email" class="input-field"
+                :class="{ 'border-red-500': errors.email }" required />
               <p v-if="errors.email" class="mt-1 text-sm text-red-600 dark:text-red-400">
                 {{ errors.email }}
               </p>
@@ -290,13 +263,8 @@
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 {{ $t("employees.phone") }}
               </label>
-              <input
-                v-model="formData.phone"
-                type="tel"
-                class="input-field"
-                :class="{ 'border-red-500': errors.phone }"
-                required
-              />
+              <input v-model="formData.phone" type="tel" class="input-field" :class="{ 'border-red-500': errors.phone }"
+                required />
               <p v-if="errors.phone" class="mt-1 text-sm text-red-600 dark:text-red-400">
                 {{ errors.phone }}
               </p>
@@ -306,13 +274,8 @@
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 {{ $t("employees.city") }}
               </label>
-              <input
-                v-model="formData.city"
-                type="text"
-                class="input-field"
-                :class="{ 'border-red-500': errors.city }"
-                required
-              />
+              <input v-model="formData.city" type="text" class="input-field" :class="{ 'border-red-500': errors.city }"
+                required />
               <p v-if="errors.city" class="mt-1 text-sm text-red-600 dark:text-red-400">
                 {{ errors.city }}
               </p>
@@ -322,14 +285,8 @@
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 المسمى الوظيفي
               </label>
-              <input
-                v-model="formData.position"
-                type="text"
-                class="input-field"
-                :class="{ 'border-red-500': errors.position }"
-                required
-                placeholder="مثال: مدير مبيعات، مطور برمجيات"
-              />
+              <input v-model="formData.position" type="text" class="input-field"
+                :class="{ 'border-red-500': errors.position }" required placeholder="مثال: مدير مبيعات، مطور برمجيات" />
               <p v-if="errors.position" class="mt-1 text-sm text-red-600 dark:text-red-400">
                 {{ errors.position }}
               </p>
@@ -339,12 +296,8 @@
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 القسم
               </label>
-              <select
-                v-model="formData.departmentId"
-                class="input-field"
-                :class="{ 'border-red-500': errors.departmentId }"
-                required
-              >
+              <select v-model="formData.departmentId" class="input-field"
+                :class="{ 'border-red-500': errors.departmentId }" required>
                 <option value="">اختر القسم</option>
                 <option v-for="dept in departments" :key="dept.id" :value="dept.id">
                   {{ dept.name }}
@@ -355,16 +308,12 @@
               </p>
             </div>
 
-            <div >
+            <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 كلمة المرور
               </label>
-              <input
-                v-model="formData.password"
-                type="text"
-                class="input-field"
-                placeholder="اتركها فارغة لتوليد كلمة مرور عشوائية"
-              />
+              <input v-model="formData.password" type="text" class="input-field"
+                placeholder="اتركها فارغة لتوليد كلمة مرور عشوائية" />
               <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
                 إذا تركتها فارغة، سيتم توليد كلمة مرور عشوائية
               </p>
@@ -374,12 +323,8 @@
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 {{ $t("employees.profilePicture") }}
               </label>
-              <input
-                v-model="formData.profilePicture"
-                type="url"
-                class="input-field"
-                :placeholder="$t('employees.profilePicturePlaceholder')"
-              />
+              <input v-model="formData.profilePicture" type="url" class="input-field"
+                :placeholder="$t('employees.profilePicturePlaceholder')" />
             </div>
 
             <div v-if="errorMessages">
@@ -479,23 +424,25 @@ const { formData, errors, isSubmitting, validateForm, resetForm } = useForm(
 const fetchEmployees = async () => {
   try {
     const { data } = await axios.post("https://crm.be-kite.com/backend/api/employees", { params: { lang: "ar" } });
-    employees.value = data.data.map((emp: any) => ({
-      id: emp.id,
-      name: emp.first_name,
-      email: emp.email,
-      phone: emp.phone,
-      city: emp.city,
-      position: emp.job,
-      departmentName: emp.section_title,
-      departmentId: emp.section_id,
-      profilePicture: emp.avatar_photo,
+    employees.value = data.data.map((employeee: any) => ({
+      id: employeee.id,
+      name: employeee.first_name,
+      email: employeee.email,
+      phone: employeee.phone,
+      city: employeee.city,
+      position: employeee.job,
+      departmentName: employeee.section_title,
+      departmentId: employeee.section_id,
+      profilePicture: employeee.avatar_photo,
+      is_blocked: employeee.is_blocked,
     }));
   } catch (error) {
     console.error("Error fetching employees:", error);
   }
 };
 
-// fetch departments 
+
+// fetch departments
 const departments = ref<Array<{ id: number; name: string; description: string; manager: string; createdAt: string }>>([]);
 const fetchDepartments = async () => {
   try {
@@ -536,16 +483,16 @@ const addEmployee = async () => {
 
     const { data } = await axios.post("https://crm.be-kite.com/backend/api/register", payload);
 
-    if (data.key===1 ) {
+    if (data.key === 1) {
       newEmployeeData.value = {
         email: formData.email,
         password: data.password,
       };
       showSuccessModal.value = true;
-          await fetchEmployees();
-    closeModal();
+      await fetchEmployees();
+      closeModal();
 
-    }else{
+    } else {
       errorMessages.value = data.msg || "حدث خطأ ما";
     }
 
@@ -574,13 +521,39 @@ const updateEmployee = async () => {
       photo: formData.profilePicture,
     };
 
-   const {data} =  await axios.post("https://crm.be-kite.com/backend/api/update-user", payload);
-   if (data.key===1 ) {
-     await fetchEmployees();
-     closeModal();
-   }else{
-     errorMessages.value = data.msg || "حدث خطأ ما";
-   }
+    const { data } = await axios.post("https://crm.be-kite.com/backend/api/update-user", payload);
+    if (data.key === 1) {
+      await fetchEmployees();
+      closeModal();
+    } else {
+      errorMessages.value = data.msg || "حدث خطأ ما";
+    }
+  } catch (error) {
+    console.error("Error updating employee:", error);
+  } finally {
+    isSubmitting.value = false;
+  }
+};
+// Update employee
+const toggleActive = async (id , isBlocked) => {
+  console.log(id);
+  try {
+    const payload = {
+      user_id: id,
+      blocked: !isBlocked,
+    };
+
+    const { data } = await axios.post("https://crm.be-kite.com/backend/api/update-user", payload , {
+      headers: {
+        "Content-Type": "application/json",
+        'Authorization': `${localStorage.getItem('token')}`,
+      },
+    });
+    if (data.key === 1) {
+      await fetchEmployees();
+    } else {
+      errorMessages.value = data.msg || "حدث خطأ ما";
+    }
   } catch (error) {
     console.error("Error updating employee:", error);
   } finally {
@@ -600,13 +573,13 @@ const deleteEmployee = async (id: number) => {
   if (!confirm("هل أنت متأكد أنك تريد حذف هذا الموظف؟")) return;
 
   try {
-   const {data} = await axios.post("https://crm.be-kite.com/backend/api/destroy-user", { user_id: id });
+    const { data } = await axios.post("https://crm.be-kite.com/backend/api/destroy-user", { user_id: id });
 
-   if (data.key===1 ) {
-     await fetchEmployees();
-   }else{
-     errorMessages.value = data.msg || "حدث خطأ ما";
-   }
+    if (data.key === 1) {
+      await fetchEmployees();
+    } else {
+      errorMessages.value = data.msg || "حدث خطأ ما";
+    }
   } catch (error) {
     console.error("Error deleting employee:", error);
   }
@@ -625,14 +598,23 @@ const editEmployee = (employee: Employee) => {
   showEditModal.value = true;
 };
 
-// Pagination + Sorting
+const activeFilter = ref<boolean | null>(null); // null = show all, true = active only, false = blocked only
+
+// Computed للموظفين المفلترين
 const filteredEmployees = computed(() => {
   let filtered = employees.value;
 
+  // فلترة حسب الحالة (Active/Blocked)
+  if (activeFilter.value !== null) {
+    filtered = filtered.filter((e) => e.is_blocked === activeFilter.value);
+  }
+
+  // فلترة حسب البحث
   if (searchQuery.value) {
     const query = searchQuery.value.toLowerCase();
     filtered = filtered.filter(
       (e) =>
+        e.id.toString().includes(query) ||
         e.name.toLowerCase().includes(query) ||
         e.email.toLowerCase().includes(query) ||
         e.phone.includes(query) ||
@@ -642,17 +624,26 @@ const filteredEmployees = computed(() => {
     );
   }
 
+  // ترتيب النتائج
   filtered.sort((a, b) => {
     const aValue = a[sortField.value];
     const bValue = b[sortField.value];
     if (typeof aValue === "string" && typeof bValue === "string") {
-      return sortOrder.value === "asc" ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
+      return sortOrder.value === "asc"
+        ? aValue.localeCompare(bValue)
+        : bValue.localeCompare(aValue);
     }
     return 0;
   });
 
   return filtered;
 });
+
+// دالة لتغيير الفلتر
+const filterEmployees = (active: boolean | null) => {
+  activeFilter.value = active;
+};
+
 
 const totalItems = computed(() => filteredEmployees.value.length);
 const totalPages = computed(() => Math.ceil(totalItems.value / itemsPerPage.value));
@@ -730,4 +721,57 @@ onMounted(async () => {
 .input-field {
   @apply w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-800 dark:text-gray-100;
 }
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  cursor: pointer;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #cbd5e1;
+  border-radius: 24px;
+  transition: 0.3s;
+}
+
+.slider:before {
+  content: "";
+  position: absolute;
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  border-radius: 50%;
+  transition: 0.3s;
+}
+
+.toggle-switch input:checked + .slider {
+  background-color: #3b82f6;
+}
+
+.dark .toggle-switch input:checked + .slider {
+  background-color: #60a5fa;
+}
+
+.toggle-switch input:checked + .slider:before {
+  transform: translateX(20px);
+}
+
+.toggle-switch input:focus + .slider {
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+}
+
 </style>

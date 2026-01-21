@@ -136,7 +136,7 @@
                   <i class="pi pi-bars text-lg"></i>
                 </button>
 
-                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-white hidden lg:block">
                   <slot name="title">{{ $t("dashboard.title") }}</slot>
                 </h1>
               </div>
@@ -191,9 +191,9 @@
                 </router-link>
 
                 <!-- Logout -->
-                <button @click="handleLogout" class="btn-secondary">
+                <button @click="handleLogout" class="btn-secondary flex items-center gap-2">
                   <i class="pi pi-sign-out mr-2"></i>
-                  {{ $t("auth.logout") }}
+                  <span class="hidden lg:block">{{ $t("auth.logout") }}</span>
                 </button>
               </div>
             </div>
@@ -255,7 +255,7 @@ const fetchClients = async () => {
       }
     }
   );
-    
+
       countNotifications.value = data.notification_count;
   } catch (error) {
     console.error("Error fetching clients:", error);

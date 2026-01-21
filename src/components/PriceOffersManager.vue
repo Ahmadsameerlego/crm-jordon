@@ -5,7 +5,7 @@
       <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
         <!-- عروض الأسعار - {{ clientName }} -->
       </h3>
-      <button @click="openAddModal" class="btn-primary">
+      <button v-if="!isEmployee" @click="openAddModal" class="btn-primary">
         <i class="pi pi-plus mr-2"></i>
         إضافة عرض سعر جديد
       </button>
@@ -33,7 +33,7 @@
               :class="getStatusClass(offer.status)">
               {{ offer.status_f }}
             </span>
-            <div class="flex items-center space-x-1 space-x-reverse">
+            <div v-if="!isEmployee" class="flex items-center space-x-1 space-x-reverse">
               <button @click="openEditModal(offer)"
                 class="text-primary-600 dark:text-primary-400 hover:text-primary-900 dark:hover:text-primary-300"
                 title="تعديل">

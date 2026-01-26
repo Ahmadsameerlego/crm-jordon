@@ -1,6 +1,6 @@
 <template>
   <AdminLayout>
-    <template #title>الأقسام</template>
+    <template #title>{{ $t('departments.title') }}</template>
 
     <!-- Header Actions -->
     <div class="flex justify-between items-center mb-6">
@@ -9,7 +9,7 @@
           <input
             v-model="searchQuery"
             type="text"
-            placeholder="البحث في الأقسام..."
+            :placeholder="$t('departments.search')"
             class="pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-800 dark:text-gray-100"
           />
           <i
@@ -20,11 +20,11 @@
       <div class="flex items-center space-x-4 ">
         <button @click="exportData" class="btn-secondary mx-3 flex items-center gap-2">
           <i class="pi pi-download "></i>
-          <span class="hidden lg:block">تصدير البيانات</span>
+          <span class="hidden lg:block">{{ $t('departments.export') }}</span>
         </button>
         <button @click="showAddModal = true" class="btn-primary flex items-center gap-2">
           <i class="pi pi-plus "></i>
-          <span class="hidden lg:block">إضافة قسم جديد</span>
+          <span class="hidden lg:block">{{ $t('departments.add') }}</span>
         </button>
       </div>
     </div>
@@ -39,7 +39,7 @@
       <div class="text-center text-red-600 dark:text-red-400">
         <i class="pi pi-exclamation-triangle text-2xl mb-2"></i>
         <p>{{ error }}</p>
-        <button @click="fetchDepartments" class="btn-primary mt-4">إعادة المحاولة</button>
+        <button @click="fetchDepartments" class="btn-primary mt-4">{{ $t('departments.retry') }}</button>
       </div>
     </div>
 
@@ -53,7 +53,7 @@
                 class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer"
                 @click="sortBy('name')"
               >
-                اسم القسم
+                {{ $t('departments.name') }}
                 <i
                   v-if="sortField === 'name'"
                   :class="sortOrder === 'asc' ? 'pi pi-sort-up' : 'pi pi-sort-down'"
@@ -63,22 +63,22 @@
               <th
                 class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
               >
-                الوصف
+                {{ $t('departments.description') }}
               </th>
               <th
                 class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
               >
-                المدير
+                {{ $t('departments.manager') }}
               </th>
               <th
                 class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
               >
-                تاريخ الإنشاء
+                {{ $t('departments.createdAt') }}
               </th>
               <th
                 class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
               >
-                إجراءات
+                {{ $t('departments.actions') }}
               </th>
             </tr>
           </thead>
@@ -139,7 +139,7 @@
       <!-- Empty State -->
       <div v-if="filteredDepartments.length === 0" class="text-center py-12">
         <i class="pi pi-building text-4xl text-gray-400 mb-4"></i>
-        <p class="text-gray-500 dark:text-gray-400">لا توجد أقسام</p>
+        <p class="text-gray-500 dark:text-gray-400">{{ $t('departments.empty') }}</p>
       </div>
     </div>
 
@@ -147,52 +147,52 @@
     <div v-if="showAddModal || showEditModal" class="modal-overlay">
       <div class="modal-content p-6 max-w-md">
         <h3 class="text-lg font-semibold mb-4">
-          {{ showEditModal ? "تعديل القسم" : "إضافة قسم جديد" }}
+          {{ showEditModal ? $t('departments.edit') : $t('departments.add') }}
         </h3>
 
         <form @submit.prevent="handleSubmit" class="space-y-4">
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              اسم القسم *
+              {{ $t('departments.name') }} *
             </label>
             <input
               v-model="formData.name"
               type="text"
               required
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-800 dark:text-gray-100"
-              placeholder="مثال: قسم السوشيال ميديا"
+              :placeholder="$t('departments.namePlaceholder')"
             />
           </div>
 
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              الوصف
+              {{ $t('departments.description') }}
             </label>
             <textarea
               v-model="formData.description"
               rows="3"
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-800 dark:text-gray-100"
-              placeholder="وصف مختصر للقسم"
+              :placeholder="$t('departments.descriptionPlaceholder')"
             ></textarea>
           </div>
 
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              المدير
+              {{ $t('departments.manager') }}
             </label>
             <input
               v-model="formData.manager"
               type="text"
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-800 dark:text-gray-100"
-              placeholder="اسم مدير القسم"
+              :placeholder="$t('departments.managerPlaceholder')"
             />
           </div>
 
           <div class="flex justify-end space-x-3 space-x-reverse">
-            <button type="button" @click="closeModal" class="btn-secondary">إلغاء</button>
+            <button type="button" @click="closeModal" class="btn-secondary">{{ $t('buttons.cancel') }}</button>
             <button type="submit" class="btn-primary" :disabled="isSubmitting">
               <span v-if="isSubmitting" class="animate-spin mr-2">⏳</span>
-              {{ showEditModal ? "تحديث" : "إضافة" }}
+              {{ showEditModal ? $t('buttons.update') : $t('buttons.add') }}
             </button>
           </div>
         </form>
@@ -202,16 +202,15 @@
     <!-- Delete Confirmation Modal -->
     <div v-if="showDeleteModal" class="modal-overlay">
       <div class="modal-content p-6 max-w-md">
-        <h3 class="text-lg font-semibold mb-4">تأكيد الحذف</h3>
+        <h3 class="text-lg font-semibold mb-4">{{ $t('buttons.delete') }}</h3>
         <p class="text-gray-600 dark:text-gray-400 mb-6">
-          هل أنت متأكد من حذف القسم "{{ departmentToDelete?.name }}"؟ هذا الإجراء لا يمكن التراجع
-          عنه.
+          {{ $t('departments.deleteConfirm') }}
         </p>
         <div class="flex justify-end space-x-3 space-x-reverse">
-          <button @click="showDeleteModal = false" class="btn-secondary">إلغاء</button>
+          <button @click="showDeleteModal = false" class="btn-secondary">{{ $t('buttons.cancel') }}</button>
           <button @click="confirmDelete" class="btn-danger" :disabled="isSubmitting">
             <span v-if="isSubmitting" class="animate-spin mr-2">⏳</span>
-            حذف
+            {{ $t('buttons.delete') }}
           </button>
         </div>
       </div>

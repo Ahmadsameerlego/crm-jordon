@@ -32,12 +32,12 @@ export default [
         component: () => import("@/views/employee/QuotationsView.vue"),
         props: true,
       },
-      {
-         path: "notifications",
-          name: "Notifications",
-          component: () => import("@/views/employee/NotificationsView.vue"),
-          props: true,
-      }
+      // {
+      //    path: "notifications",
+      //     name: "Notifications",
+      //     component: () => import("@/views/employee/NotificationsView.vue"),
+      //     props: true,
+      // }
 
     ],
   },

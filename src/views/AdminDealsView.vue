@@ -1,6 +1,6 @@
 <template>
   <AdminLayout>
-    <template #title>العملاء</template>
+    <template #title>{{ $t('deals.clients') }}</template>
 
     <!-- Header Section -->
     <div class="flex justify-between items-center mb-6">
@@ -23,7 +23,7 @@
             v-model="selectedEmployeeId"
             class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-800 dark:text-gray-100 min-w-[200px]"
           >
-            <option value="" selected hidden disabled>كل الموظفين</option>
+            <option value="" selected hidden disabled>{{ $t('quotation.all_employees') }}</option>
             <option
               v-for="employee in employees"
               :key="employee.id"
@@ -59,22 +59,22 @@
           <thead class="bg-gray-50 dark:bg-gray-700">
             <tr>
               <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                اسم الموظف
+                {{ $t('quotation.employee_name') }}
               </th>
               <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                اسم الشركة
+                {{ $t('quotation.company_name') }}
               </th>
-              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+              <!-- <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 رقم الجوال
               </th>
               <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                 الملاحظات
+              </th> -->
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                {{ $t('deals.accepted_offers') }}
               </th>
               <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                عروض الأسعار
-              </th>
-              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                إجراءات
+                {{ $t('deals.actions') }}
               </th>
             </tr>
           </thead>
@@ -87,7 +87,7 @@
                 :title="client.first_name" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 max-w-[200px] overflow-hidden text-ellipsis cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                 {{ client.first_name }}
               </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+              <!-- <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                 {{ client.phone_info }}
               </td>
               <td
@@ -96,7 +96,7 @@
                 :title="client.desc"
               >
                 {{ client.desc }}
-              </td>
+              </td> -->
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                 <button
                   :class="[
@@ -108,18 +108,18 @@
                   ]"
                   @click="openOffersModal(client)"
                 >
-                  عرض العروض ({{ client.offer_orders_count }})
+                  {{ $t('deals.offers') }} ({{ client.offer_orders_count }})
                 </button>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm font-medium flex gap-2">
                 <button class="btn-secondary" @click="handleEditClient(client)">
-                  تعديل
+                  {{ $t('buttons.edit') }}
                 </button>
                 <button class="btn-danger" @click="handleDeleteClient(client)">
-                  حذف
+                  {{ $t('buttons.delete') }}
                 </button>
                 <router-link :to="`/employee/clients/${client.id}/requests`" class="btn-secondary">
-                  طلبات العميل
+                  {{ $t('deals.requests') }}
                 </router-link>
               </td>
             </tr>
@@ -132,24 +132,24 @@
     <div v-if="showAddModal || showEditModal" class="modal-overlay">
       <div class="modal-content p-4">
         <h3 class="text-lg font-semibold mb-4">
-          {{ showEditModal ? 'تعديل عميل' : 'إضافة عميل جديد' }}
+          {{ showEditModal ? $t('buttons.edit') : $t('buttons.add') }}
         </h3>
         <form @submit.prevent="showEditModal ? updateClient() : addClient()">
-          <input v-model="formData.first_name" placeholder="اسم الشركة" class="input-field mb-2" />
-          <input v-model="formData.address" placeholder="عنوان الشركة" class="input-field mb-2" />
-          <input v-model="formData.full_name" placeholder="اسم المسئول" class="input-field mb-2" />
-          <input v-model="formData.phone_info" type="number" placeholder="رقم الجوال" class="input-field mb-2" />
-          <input v-model="formData.email_info" placeholder="البريد" class="input-field mb-2" />
-          <input v-model="formData.web_site" placeholder="الموقع الالكتروني" class="input-field mb-2" />
-          <input v-model="formData.facebook" placeholder="فيسبوك" class="input-field mb-2" />
-          <input v-model="formData.instagram" placeholder="انستجرام" class="input-field mb-2" />
-          <textarea v-model="formData.desc" placeholder="ملاحظات" class="input-field mb-2"></textarea>
+          <input v-model="formData.first_name" :placeholder="$t('quotation.company_name')" class="input-field mb-2" />
+          <input v-model="formData.address" :placeholder="$t('quotation.address')" class="input-field mb-2" />
+          <input v-model="formData.full_name" :placeholder="$t('quotation.employee_name')" class="input-field mb-2" />
+          <input v-model="formData.phone_info" type="number" :placeholder="$t('quotation.phone')" class="input-field mb-2" />
+          <input v-model="formData.email_info" :placeholder="$t('quotation.email')" class="input-field mb-2" />
+          <input v-model="formData.web_site" :placeholder="$t('quotation.webSite')" class="input-field mb-2" />
+          <input v-model="formData.facebook" :placeholder="$t('quotation.facebook')" class="input-field mb-2" />
+          <input v-model="formData.instagram" :placeholder="$t('quotation.instagram')" class="input-field mb-2" />
+          <textarea v-model="formData.desc" :placeholder="$t('quotation.desc')" class="input-field mb-2"></textarea>
           <div class="text-red-500 my-3">{{ errorMessage }}</div>
           <div class="flex justify-end space-x-2 space-x-reverse">
             <button type="button" class="btn-secondary" @click="showAddModal = showEditModal = false">
-              إلغاء
+              {{ $t('buttons.cancel') }}
             </button>
-            <button type="submit" class="btn-primary">حفظ</button>
+            <button type="submit" class="btn-primary">{{ $t('buttons.save') }}</button>
           </div>
         </form>
       </div>
@@ -160,7 +160,7 @@
       <div class="modal-content p-4 max-w-6xl h-5/6">
         <div class="flex justify-between items-center mb-4">
           <h3 class="text-lg font-semibold">
-            عروض الأسعار - {{ selectedClient?.first_name }} {{ selectedClient?.full_name }}
+            {{ $t('deals.offers') }} - {{ selectedClient?.first_name }} {{ selectedClient?.full_name }}
           </h3>
           <button @click="showOffersModal = false" class="text-gray-500 hover:text-gray-700">
             <i class="pi pi-times text-xl"></i>
@@ -183,13 +183,13 @@
     <div v-if="showDescModal" class="modal-overlay" @click="showDescModal = false">
       <div class="modal-content p-6 max-w-2xl w-full mx-4" @click.stop>
         <div class="flex justify-between items-center mb-4">
-          <h3 class="text-lg font-semibold dark:text-gray-100">الملاحظات</h3>
+          <h3 class="text-lg font-semibold dark:text-gray-100">{{ $t('deals.description') }}</h3>
           <button @click="showDescModal = false" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
             <i class="pi pi-times text-xl"></i>
           </button>
         </div>
         <div class="text-gray-700 dark:text-gray-300 whitespace-pre-wrap max-h-[60vh] overflow-y-auto leading-relaxed">
-          {{ selectedDesc || 'لا توجد ملاحظات' }}
+          {{ selectedDesc || $t('deals.no_notes') }}
         </div>
       </div>
     </div>

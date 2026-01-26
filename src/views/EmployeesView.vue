@@ -28,15 +28,15 @@
         <div class="flex items-center space-x-4">
           <button @click="filterEmployees(false)" class="btn-primary mx-4 flex items-center gap-2">
             <i class="pi pi-user"></i>
-            <span class="hidden lg:block">موظف نشط</span>
+            <span class="hidden lg:block">{{ $t('emp.active') }}</span>
           </button>
           <button @click="filterEmployees(true)" class="btn-secondary flex items-center gap-2">
             <i class="pi pi-user"></i>
-              <span class="hidden lg:block">موظف غير نشط</span>
+              <span class="hidden lg:block">{{ $t('emp.deactive') }}</span>
           </button>
           <button @click="filterEmployees(null)" class="btn-secondary flex items-center gap-2">
             <i class="pi pi-filter"></i>
-            <span class="hidden lg:block">الكل</span>
+            <span class="hidden lg:block">{{ $t('emp.all') }}</span>
           </button>
         </div>
     </div>
@@ -77,14 +77,14 @@
               <th
                 class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer"
                 @click="sortBy('position')">
-                المسمى الوظيفي
+                {{ $t("employees.position") }}
                 <i v-if="sortField === 'position'" :class="sortOrder === 'asc' ? 'pi pi-sort-up' : 'pi pi-sort-down'"
                   class="mr-1"></i>
               </th>
               <th
                 class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer"
                 @click="sortBy('departmentName')">
-                القسم
+                {{ $t("employees.department") }}
                 <i v-if="sortField === 'departmentName'"
                   :class="sortOrder === 'asc' ? 'pi pi-sort-up' : 'pi pi-sort-down'" class="mr-1"></i>
               </th>
@@ -283,10 +283,10 @@
 
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                المسمى الوظيفي
+                {{ $t("employees.position") }}
               </label>
               <input v-model="formData.position" type="text" class="input-field"
-                :class="{ 'border-red-500': errors.position }" required placeholder="مثال: مدير مبيعات، مطور برمجيات" />
+                :class="{ 'border-red-500': errors.position }" required placeholder="" />
               <p v-if="errors.position" class="mt-1 text-sm text-red-600 dark:text-red-400">
                 {{ errors.position }}
               </p>
@@ -294,11 +294,11 @@
 
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                القسم
+                {{ $t("employees.department") }}
               </label>
               <select v-model="formData.departmentId" class="input-field"
                 :class="{ 'border-red-500': errors.departmentId }" required>
-                <option value="">اختر القسم</option>
+                <option value="">{{ $t('employees.department') }}</option>
                 <option v-for="dept in departments" :key="dept.id" :value="dept.id">
                   {{ dept.name }}
                 </option>
@@ -310,12 +310,12 @@
 
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                كلمة المرور
+                {{ $t("auth.password") }}
               </label>
               <input v-model="formData.password" type="text" class="input-field"
-                placeholder="اتركها فارغة لتوليد كلمة مرور عشوائية" />
+                placeholder="" />
               <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                إذا تركتها فارغة، سيتم توليد كلمة مرور عشوائية
+                {{ $t("employees.passwordPlaceholder") }}
               </p>
             </div>
 

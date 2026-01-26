@@ -3,11 +3,11 @@
     <!-- Header -->
     <div class="flex justify-between items-center">
       <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-        <!-- عروض الأسعار - {{ clientName }} -->
+        <!-- {{ $t('clients.priceOffers') }} - {{ clientName }} -->
       </h3>
       <button v-if="!isEmployee" @click="openAddModal" class="btn-primary">
         <i class="pi pi-plus mr-2"></i>
-        إضافة عرض سعر جديد
+        {{ $t('clients.addNewOffer') }}
       </button>
     </div>
 
@@ -48,29 +48,29 @@
         </div>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
           <div>
-            <span class="text-sm font-medium text-gray-500 dark:text-gray-400">المبلغ:</span>
+            <span class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ $t('clients.amount') }}:</span>
             <p class="text-lg font-semibold text-gray-900 dark:text-white">
               {{ offer.sub_total }} {{ offer.payment_method }}
             </p>
           </div>
           <div>
-            <span class="text-sm font-medium text-gray-500 dark:text-gray-400">تاريخ الطلب:</span>
+            <span class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ $t('clients.orderDate') }}:</span>
             <p class="text-gray-900 dark:text-white">{{ offer.order_date }}</p>
           </div>
           <div>
-            <span class="text-sm font-medium text-gray-500 dark:text-gray-400">الوقت:</span>
+            <span class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ $t('clients.orderTime') }}:</span>
             <p class="text-gray-900 dark:text-white">{{ offer.order_time }}</p>
           </div>
         </div>
 
         <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
-          <h5 class="text-lg font-bold text-yellow-100 dark:text-yellow-500 mb-2">الملفات المرفقة:</h5>
+          <h5 class="text-lg font-bold text-yellow-100 dark:text-yellow-500 mb-2">{{ $t('clients.attachedFiles') }}:</h5>
 
           <!-- Original Offer File -->
           <div class="flex items-center justify-between mb-2">
             <div class="flex items-center">
               <i class="pi pi-file-pdf text-red-500 mr-2"></i>
-              <span class="text-sm text-gray-600 dark:text-gray-400">ملف العرض الأصلي:</span>
+              <span class="text-sm text-gray-600 dark:text-gray-400">{{ $t('clients.originalOfferFile') }}:</span>
             </div>
             <div class="flex items-center space-x-2 space-x-reverse" v-if="offer.image">
               <button @click="downloadFile(offer.image)"
@@ -83,14 +83,14 @@
                 <i class="pi pi-eye"></i>
               </button>
             </div>
-            <span v-else class="text-sm text-gray-400">لا يوجد ملف</span>
+            <span v-else class="text-sm text-gray-400">{{ $t('clients.noFiles') }}</span>
           </div>
 
           <!-- Contract File -->
-          <div v-if="offer.status!=='new'" class="flex items-center justify-between">
+          <div v-if="offer.status!=='new' && offer.contract" class="flex items-center justify-between">
             <div class="flex items-center">
               <i class="pi pi-file-pdf text-green-500 mr-2"></i>
-              <span class="text-sm text-gray-600 dark:text-gray-400">ملف العقد:</span>
+              <span class="text-sm text-gray-600 dark:text-gray-400">{{ $t('clients.contractFile') }}:</span>
             </div>
             <div class="flex items-center space-x-2 space-x-reverse" v-if="offer.contract">
               <button @click="downloadFile(offer.contract)"
@@ -103,15 +103,23 @@
                 <i class="pi pi-eye"></i>
               </button>
             </div>
-            <span v-else class="text-sm text-gray-400">لا يوجد ملف</span>
+            <span v-else class="text-sm text-gray-400">{{ $t('clients.noFiles') }}</span>
           </div>
+
+          <!-- ارفاق عرض السسعر  -->
+           <div v-if="!offer.contract">
+            <button @click="openContractModal(offer.id)" class="btn-primary">
+              <i class="pi pi-plus mr-2"></i>
+              {{ $t('clients.attachContract') }}
+            </button>
+           </div>
         </div>
       </div>
 
       <!-- Empty State -->
       <div v-if="offers.length === 0" class="text-center py-12">
         <i class="pi pi-file text-4xl text-gray-400 mb-4"></i>
-        <p class="text-gray-500 dark:text-gray-400">لا توجد عروض أسعار لهذا العميل</p>
+        <p class="text-gray-500 dark:text-gray-400">{{ $t('clients.noOffers') }}</p>
       </div>
     </div>
 
@@ -119,69 +127,69 @@
     <div v-if="showModal" class="modal-overlay">
       <div class="modal-content p-6 max-w-2xl w-full mx-4">
         <h3 class="text-lg font-semibold mb-4">
-          {{ isEditing ? "تعديل عرض السعر" : "إضافة عرض سعر جديد" }}
+          {{ isEditing ? $t('clients.editOffer') : $t('clients.addNewOffer') }}
         </h3>
 
         <form @submit.prevent="handleSubmit" class="space-y-4">
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              العنوان *
+              {{ $t('clients.offerTitle') }} *
             </label>
             <input v-model="formData.service_title_ar" type="text" required
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-800 dark:text-gray-100"
-              placeholder="عنوان عرض السعر" />
+              :placeholder="$t('clients.offerTitle')" />
           </div>
 
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              الوصف *
+              {{ $t('clients.offerDescription') }} *
             </label>
             <textarea v-model="formData.notes" rows="3" required
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-800 dark:text-gray-100"
-              placeholder="وصف تفصيلي للخدمة"></textarea>
+              :placeholder="$t('clients.offerDescription')"></textarea>
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                المبلغ *
+                {{ $t('clients.offerAmount') }} *
               </label>
               <input v-model.number="formData.sub_total" type="number" required min="0" step="0.01"
                 class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-800 dark:text-gray-100"
-                placeholder="0.00" />
+                :placeholder="$t('clients.offerAmount')" />
             </div>
 
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                العملة *
+                {{ $t('clients.currency') }} *
               </label>
               <select v-model="formData.payment_method" required
                 class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-800 dark:text-gray-100">
-                                <option value="JOD">دينار أردني (JOD)</option>
-                <option value="SAR">ريال سعودي (SAR)</option>
-                <option value="USD">دولار أمريكي (USD)</option>
+                                <option value="JOD">{{ $t('clients.jod') }}</option>
+                <option value="SAR">{{ $t('clients.sar') }}</option>
+                <option value="USD">{{ $t('clients.usd') }}</option>
               </select>
             </div>
           </div>
 
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              ملف العرض (PDF)
+              {{ $t('clients.offerFile') }}
             </label>
             <input ref="fileInput" type="file" accept=".pdf,.png,.jpg,.jpeg" @change="handleFileChange"
               class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-800 dark:text-gray-100" />
             <p v-if="isEditing" class="mt-1 text-xs text-yellow-600 dark:text-yellow-400">
-              اترك الحقل فارغاً إذا كنت لا تريد تغيير الملف الحالي
+              {{ $t('clients.saveEmpty') }}
             </p>
           </div>
 
           <div class="flex justify-end space-x-3 space-x-reverse pt-4">
             <button type="button" @click="closeModal" class="btn-secondary">
-              إلغاء
+              {{ $t('buttons.cancel') }}
             </button>
             <button type="submit" class="btn-primary" :disabled="isSubmitting">
               <span v-if="isSubmitting" class="animate-spin mr-2">⏳</span>
-              {{ isEditing ? "تحديث" : "إضافة" }}
+              {{ isEditing ? $t('buttons.update') : $t('buttons.add') }}
             </button>
           </div>
         </form>
@@ -192,7 +200,7 @@
     <div v-if="showPreviewModal" class="modal-overlay" @click="showPreviewModal = false">
       <div class="modal-content p-4 max-w-4xl h-5/6 w-full mx-4" @click.stop>
         <div class="flex justify-between items-center mb-4">
-          <h3 class="text-lg font-semibold">معاينة الملف</h3>
+          <h3 class="text-lg font-semibold">{{ $t('clients.previewFile') }}</h3>
           <button @click="showPreviewModal = false" class="text-gray-500 hover:text-gray-700">
             <i class="pi pi-times text-xl"></i>
           </button>
@@ -202,6 +210,40 @@
             class="w-full h-full border-0 rounded" title="File Preview"></iframe>
           <img v-else :src="previewUrl" class="w-full h-full object-contain rounded" alt="File Preview" />
         </div>
+      </div>
+    </div>
+
+    <!-- contract modal  -->
+     <div v-if="showContractModal" class="modal-overlay">
+      <div class="modal-content p-6 max-w-2xl w-full mx-4">
+        <h3 class="text-lg font-semibold mb-4">
+          {{ isEditing ? $t('clients.editOffer') : $t('clients.addContractFromAdmin') }}
+        </h3>
+
+        <form @submit.prevent="handleContractSubmit" class="space-y-4">
+
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              {{ $t('clients.contractFile') }} *
+            </label>
+            <input  type="file" accept=".pdf,.jpg,.jpeg,.png" @change="handleContractFileChange" required
+              class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-800 dark:text-gray-100" />
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              {{ $t('clients.saveEmpty') }}
+            </p>
+          </div>
+
+          <div class="flex justify-end space-x-3 space-x-reverse pt-4">
+            <button type="button" @click="closeContractModal" class="btn-secondary">
+              {{ $t('buttons.cancel') }}
+            </button>
+            <button type="submit" class="btn-primary" :disabled="isSubmitting">
+              <span v-if="isSubmitting" class="animate-spin mr-2">⏳</span>
+              {{ isEditing ? $t('buttons.update') : $t('buttons.add') }}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   </div>
@@ -391,6 +433,55 @@ const previewFile = (fileUrl: string) => {
   previewUrl.value = fileUrl;
   showPreviewModal.value = true;
 };
+
+
+// contract
+const showContractModal = ref(false);
+const offerId = ref(0)
+const openContractModal = (id:number) => {
+  offerId.value = id;
+  showContractModal.value = true;
+};
+const contractFile = ref(null);
+const handleContractFileChange = (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  if (target.files && target.files[0]) {
+    contractFile.value = target.files[0];
+  }
+}
+const closeContractModal = () => {
+  showContractModal.value = false;
+};
+const handleContractSubmit = async () => {
+  // handle api call
+  const formData = new FormData();
+  formData.append('order_id' , offerId.value.toString() );
+  formData.append('contract_photo' , contractFile.value);
+  formData.append('status' , 'agree');
+
+  const endpoint = "https://crm.be-kite.com/backend/api/change-order-status";
+
+  try {
+    const { data } = await axios.post(endpoint, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        'Authorization' : localStorage.getItem('token')
+      }
+    });
+
+    if (data && data.key === 1) {
+      emit('offer-added'); // Refetch parent data
+      closeContractModal();
+    } else {
+      error.value = data.msg || 'حدث خطأ أثناء حفظ عرض السعر';
+    }
+  } catch (err) {
+    console.error("Error submitting offer:", err);
+    error.value = 'حدث خطأ في الاتصال بالخادم';
+  } finally {
+    isSubmitting.value = false;
+  }
+}
 </script>
 
 <style scoped>

@@ -66,7 +66,7 @@
                 ]"
               >
                 <i class="pi pi-building mr-3"></i>
-                الأقسام
+                {{ $t("navigation.departments") }}
               </router-link>
 
               <router-link
@@ -92,7 +92,7 @@
                 ]"
               >
                 <i class="pi pi-file mr-3"></i>
-                الطلبات
+                {{ $t("navigation.quotations") }}
               </router-link>
 
               <router-link

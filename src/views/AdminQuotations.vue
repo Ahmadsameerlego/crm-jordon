@@ -1,6 +1,6 @@
 <template>
   <AdminLayout>
-    <template #title>الطلبات (عروض الأسعار )</template>
+    <template #title> {{  $t('quotation.quotation')  }} </template>
 
     <!-- Header Section -->
     <div class="flex justify-between items-center mb-6">
@@ -23,7 +23,7 @@
             v-model="selectedEmployeeId"
             class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-800 dark:text-gray-100 min-w-[200px]"
           >
-            <option value="" selected hidden disabled>كل الموظفين</option>
+            <option value="" selected hidden disabled>{{ $t('quotation.all_employees') }}</option>
             <option
               v-for="employee in employees"
               :key="employee.id"
@@ -54,34 +54,34 @@
           <thead class="bg-gray-50 dark:bg-gray-700">
             <tr>
               <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                اسم الموظف
+                {{ $t('quotation.employee_name') }}
               </th>
               <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                اسم المسئول
+                {{ $t('quotation.responsible_name') }}
               </th>
               <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                اسم الشركة
+                {{ $t('quotation.company_name') }}
               </th>
               <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                الخدمة المطلوبة
+                {{ $t('quotation.service_title') }}
               </th>
               <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                الملاحظات
+                {{ $t('quotation.notes') }}
               </th>
               <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                المبلغ
+                {{ $t('quotation.amount') }}
               </th>
               <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                الحالة
+                {{ $t('quotation.status') }}
               </th>
               <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                تاريخ الطلب
+                {{ $t('quotation.order_date') }}
               </th>
               <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                عروض الأسعار
+                {{ $t('quotation.quotes') }}
               </th>
               <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                إجراءات
+                {{ $t('quotation.actions') }}
               </th>
             </tr>
           </thead>
@@ -134,13 +134,13 @@
                   class="btn-primary bg-red-500"
                   @click="openOffersModal(client)"
                 >
-                   عرض العروض
+                   {{ $t('quotation.quotation') }}
                 </button>
 
               </td>
               <td>
                 <button class="btn-danger mx-3" @click="handleDeleteQuotation(client)">
-                  حذف
+                  {{ $t('quotation.delete') }}
                 </button>
               </td>
 
@@ -157,7 +157,7 @@
       <div class="modal-content p-4 max-w-6xl h-5/6">
         <div class="flex justify-between items-center mb-4">
           <h3 class="text-lg font-semibold">
-            عروض الأسعار - {{ selectedClient?.first_name }} {{ selectedClient?.full_name }}
+            {{ $t('quotation.quotation') }} - {{ selectedClient?.first_name }} {{ selectedClient?.full_name }}
           </h3>
           <button @click="showOffersModal = false" class="text-gray-500 hover:text-gray-700">
             <i class="pi pi-times text-xl"></i>
@@ -180,13 +180,13 @@
     <div v-if="showDescModal" class="modal-overlay" @click="showDescModal = false">
       <div class="modal-content p-6 max-w-2xl w-full mx-4" @click.stop>
         <div class="flex justify-between items-center mb-4">
-          <h3 class="text-lg font-semibold dark:text-gray-100">الملاحظات</h3>
+          <h3 class="text-lg font-semibold dark:text-gray-100">{{ $t('quotation.notes') }}</h3>
           <button @click="showDescModal = false" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
             <i class="pi pi-times text-xl"></i>
           </button>
         </div>
         <div class="text-gray-700 dark:text-gray-300 whitespace-pre-wrap max-h-[60vh] overflow-y-auto leading-relaxed">
-          {{ selectedDesc || 'لا توجد ملاحظات' }}
+          {{ selectedDesc || $t('quotation.no_notes') }}
         </div>
       </div>
     </div>

@@ -13,12 +13,13 @@ const router = createRouter({
     },
     {
       path: "/employee",
-      meta: { requiresEmployeeAuth: true },
+      meta: { requiresEmployeeAuth: true , role: "employee" },
       children: [
         {
           path: "dashboard",
           name: "EmployeeDashboard",
           component: () => import("@/views/employee/DashboardView.vue"),
+
         },
         {
           path: "clients",
@@ -75,50 +76,56 @@ const router = createRouter({
       path: "/admin",
       name: "AdminDashboard",
       component: () => import("@/views/AdminDashboardView.vue"),
-      meta: { requiresAuth: true },
+      meta: { requiresAuth: true , role: "admin"},
     },
     {
       path: "/admin/employees",
       name: "Employees",
       component: () => import("@/views/EmployeesView.vue"),
-      meta: { requiresAuth: true },
+      meta: { requiresAuth: true , role: "admin" },
     },
     {
       path: "/admin/departments",
       name: "Departments",
       component: () => import("@/views/AdminDepartmentsView.vue"),
-      meta: { requiresAuth: true },
+      meta: { requiresAuth: true , role: "admin" },
     },
     {
       path: "/admin/profile",
       name: "Profile",
       component: () => import("@/views/ProfileView.vue"),
-      meta: { requiresAuth: true },
+      meta: { requiresAuth: true , role: "admin" },
     },
     {
       path: "/admin/clients",
       name: "AdminClients",
       component: () => import("@/views/AdminClientsView.vue"),
-      meta: { requiresAuth: true },
+      meta: { requiresAuth: true , role: "admin" },
     },
     {
       path: "/admin/deals",
       name: "AdminDeals",
       component: () => import("@/views/AdminDealsView.vue"),
-      meta: { requiresAuth: true },
+      meta: { requiresAuth: true , role: "admin" },
     },
     {
       path: "/admin/notifications",
       name: "Notifications",
       component: () => import("@/views/notificationView.vue"),
-      meta: { requiresAuth: true },
+      meta: { requiresAuth: true , role: "admin" },
     },
     {
       path: "/admin/quotations",
       name: "Quotations",
       component: () => import("@/views/AdminQuotations.vue"),
-      meta: { requiresAuth: true },
+      meta: { requiresAuth: true , role: "admin" },
     },
+    {
+          path: "/admin/clients/:clientId/requests",
+          name: "ClientRequests",
+          component: () => import("@/views/AdminClientRequest.vue"),
+          props: true,
+        },
     {
       path: "/:pathMatch(.*)*",
       name: "NotFound",
@@ -127,25 +134,37 @@ const router = createRouter({
   ],
 });
 
-// Navigation guards
 router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore();
+  const userType = localStorage.getItem("user_type"); // admin | employee
 
-  // Check authentication status
+  // تأكيد حالة الـ auth
   if (!authStore.isAuthenticated && authStore.token) {
     await authStore.checkAuth();
   }
 
-  // Handle routes that require authentication
+  // لو مش authenticated
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
-    next("/login");
-    return;
+    return next("/login");
   }
 
-  // Handle routes that require guest (not authenticated)
-  if (to.meta.requiresGuest && authStore.isAuthenticated && to.path !== "/employee/login") {
-    next("/admin");
-    return;
+  // 🔐 Role based access
+  if (to.meta.role) {
+    // employee حاول يدخل admin
+    if (to.meta.role === "admin" && userType === "employee") {
+      return next("/employee/dashboard");
+    }
+
+    // guest أو role غلط
+    if (!userType) {
+      return next("/login");
+    }
+  }
+
+  // guest routes
+  if (to.meta.requiresGuest && authStore.isAuthenticated) {
+    if (userType === "admin") return next("/admin");
+    if (userType === "employee") return next("/employee/dashboard");
   }
 
   next();

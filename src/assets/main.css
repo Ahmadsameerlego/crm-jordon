@@ -111,6 +111,7 @@
 [dir="ltr"] .right-3.left-2{
   right: 0.75rem;
   left: auto;
+  top: 20px !important;
 }
 @layer base {
   html {

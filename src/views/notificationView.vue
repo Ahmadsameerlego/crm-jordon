@@ -3,7 +3,7 @@
 
     <main class="flex-1 p-2 sm:p-4 lg:p-8 w-full">
         <div class="mb-6 flex justify-between items-center">
-            <h2 class="text-xl font-bold">الإشعارات</h2><!---->
+            <h2 class="text-xl font-bold">{{ $t('notifications.title') }}</h2><!---->
         </div>
         <div>
             <ul class="space-y-4">
@@ -14,7 +14,7 @@
                         </div>
                         <div class="text-xs text-gray-500 mt-1">{{ notification.date }}</div>
                     </div>
-                    <button @click="deleteNotification(notification.id)" class="btn-danger px-3 py-1 text-xs">حذف</button>
+                    <button @click="deleteNotification(notification.id)" class="btn-danger px-3 py-1 text-xs">{{ $t('buttons.delete') }}</button>
                 </li>
 
             </ul>
@@ -39,7 +39,7 @@ const getNotifications = () => {
             }
         }
     ).then((response) => {
-        notifications.value = response.data.data    
+        notifications.value = response.data.data
     });
 }
 onMounted(() => {
@@ -56,7 +56,7 @@ const deleteNotification = (id) => {
             }
         }
     ).then((response) => {
-        getNotifications()   
+        getNotifications()
     });
 }
 </script>

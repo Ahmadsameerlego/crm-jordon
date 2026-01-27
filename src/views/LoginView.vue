@@ -182,11 +182,11 @@ const handleLogin = async () => {
       // ✅ خزن بيانات الادمن في localStorage
       localStorage.setItem("token", result.data.api_token);
       localStorage.setItem("user", JSON.stringify(result.data));
-
+      localStorage.setItem("user_type", formData.user_type);
       // ✅ ريـدايركت حسب نوع المستخدم
       const redirectPath =
         formData.user_type === "admin" ? "/admin" : "/employee/dashboard";
-      
+
         router.push(redirectPath);
       setTimeout(() => {
         window.location.reload();

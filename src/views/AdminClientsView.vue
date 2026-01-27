@@ -114,7 +114,7 @@
                 <button class="btn-danger" @click="handleDeleteClient(client)">
                   {{ $t("clients.delete") }}
                 </button>
-                <router-link :to="`/employee/clients/${client.id}/requests`" class="btn-secondary">
+                <router-link :to="`/admin/clients/${client.id}/requests`" class="btn-secondary">
                   {{ $t("clients.requests") }}
                 </router-link>
               </td>
